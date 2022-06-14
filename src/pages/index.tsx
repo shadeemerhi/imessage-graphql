@@ -1,10 +1,38 @@
+import axios from "axios";
 import type { NextPage } from "next";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import Image from "next/image";
+import React, { useState } from "react";
 import styles from "../styles/Home.module.css";
-import { signIn } from "next-auth/react";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
+
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!username) return;
+
+    setLoading(true);
+
+    try {
+      await axios.post("/api/hello", {
+        username,
+      });
+      reloadSession();
+    } catch (error) {
+      console.log("onSubmit error", error);
+    }
+  };
+
+  const reloadSession = () => {
+    const event = new Event("visibilitychange");
+    document.dispatchEvent(event);
+    setLoading(false);
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -17,7 +45,28 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
-        <button onClick={() => signIn("google")}>Login With Google</button>
+        {session?.user ? (
+          <>
+            <button onClick={() => signOut()}>Sign Out</button>
+            {session.user.username ? (
+              <div>Welcome {session.user.username}</div>
+            ) : (
+              <form onSubmit={onSubmit}>
+                <input
+                  placeholder="Enter a username"
+                  value={username}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setUsername(event.target.value)
+                  }
+                />
+                <button type="submit">Save</button>
+                {loading && <span>LOADING</span>}
+              </form>
+            )}
+          </>
+        ) : (
+          <button onClick={() => signIn("google")}>Login With Google</button>
+        )}
       </main>
     </div>
   );
