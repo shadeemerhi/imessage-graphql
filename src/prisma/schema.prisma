@@ -42,6 +42,7 @@ model User {
   emailVerified  DateTime?
   image          String?
   username       String?
+  messages       Message[]
   accounts       Account[]
   sessions       Session[]
   createdAt      DateTime  @default(now())
@@ -55,4 +56,23 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Conversation {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  participants    String[]
+  messages        Message[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Message {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  conversationId  String
+  sender          User  @relation(fields: [senderId], references: [id])
+  senderId        String
+  body            String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
