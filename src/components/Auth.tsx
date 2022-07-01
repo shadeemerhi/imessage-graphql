@@ -52,7 +52,7 @@ const Auth: React.FC<AuthProps> = ({ session }) => {
                 }
               />
               <button
-                className={`btn btn-info w-1/3 ${true && "loading"}`}
+                className={`btn btn-info w-1/3 ${loading && "loading"}`}
                 type="submit"
               >
                 Save
