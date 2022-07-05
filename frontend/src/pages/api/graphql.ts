@@ -1,5 +1,5 @@
 import Cors from "micro-cors";
-import resolvers from "../../graphql/resolvers";
+import resolvers from "../../../../backend/graphql/resolvers";
 import typeDefs from "../../graphql/typeDefs";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
