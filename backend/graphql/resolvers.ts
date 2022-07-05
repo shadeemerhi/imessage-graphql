@@ -1,28 +1,28 @@
+import { PubSub } from "graphql-subscriptions";
+
+const pubsub = new PubSub();
+
 interface Post {
-  title: string;
   author: string;
-  body: string;
+  comment: string;
 }
 
 interface NewPostInput {
   post: {
-    title: string;
     author: string;
-    body: string;
+    comment: string;
   };
 }
 
 // Test data
 const posts = [
   {
-    title: "The Awakening",
     author: "Kate Chopin",
-    body: "Here is a post",
+    comment: "Here is a post",
   },
   {
-    title: "City of Glass",
     author: "Paul Auster",
-    body: "This is my first post",
+    comment: "This is my first post",
   },
 ];
 
@@ -31,13 +31,26 @@ const resolvers = {
     posts: () => posts,
   },
 
-  //   Mutation: {
-  //     addPost: (_: any, postData: NewPostInput): Post[] => {
-  //       console.log("HERE IS THE INPUT", postData.post);
-  //       posts.push(postData.post);
-  //       return posts;
-  //     },
-  //   },
+  Subscription: {
+    postCreated: {
+      subscribe: () => pubsub.asyncIterator(["POST_CREATED"]),
+    },
+  },
+
+  Mutation: {
+    createPost: (
+      _: any,
+      args: { author: string; comment: string },
+      context: any
+    ): Post => {
+      console.log("HERE IS THE INPUT", args);
+      pubsub.publish("POST_CREATED", { postCreated: args });
+      const { author, comment } = args;
+      const newPost = { author, comment };
+      posts.push(newPost);
+      return newPost;
+    },
+  },
 };
 
 export default resolvers;

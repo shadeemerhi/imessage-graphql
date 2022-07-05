@@ -2,9 +2,8 @@ import { gql } from "apollo-server-express";
 
 const typeDefs = gql`
   type Post {
-    title: String
     author: String
-    body: String
+    comment: String
   }
 
   #   input NewPostInput {
@@ -13,8 +12,16 @@ const typeDefs = gql`
   #     body: String!
   #   }
 
+  type Subscription {
+    postCreated: Post
+  }
+
   type Query {
     posts: [Post]
+  }
+
+  type Mutation {
+    createPost(author: String, comment: String): Post
   }
 
   #   type Mutation {
