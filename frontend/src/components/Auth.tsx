@@ -1,7 +1,9 @@
+import { useMutation, useQuery } from "@apollo/client";
 import axios from "axios";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
+import UserOperations from "../graphql/operations/users";
 
 interface AuthProps {
   session: Session | null;
@@ -9,28 +11,38 @@ interface AuthProps {
 
 const Auth: React.FC<AuthProps> = ({ session }) => {
   const [username, setUsername] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const [createUsername, { data, loading, error }] = useMutation(
+    UserOperations.Mutations.createUsername
+  );
+  console.log("HERE IS RESPONSE", data, loading, error);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!username) return;
-
-    setLoading(true);
 
     try {
-      await axios.post("/api/hello", {
-        username,
+      const { data } = await createUsername({
+        variables: {
+          username,
+        },
       });
-      reloadSession();
+      console.log("INSIDE FUNCTION", data);
+
+      if (!data?.createUsername?.success) {
+        /**
+         * Display something on UI indicating invalid username
+         */
+        return;
+      }
+
+      // reloadSession();
     } catch (error) {
       console.log("onSubmit error", error);
     }
   };
-
   const reloadSession = () => {
     const event = new Event("visibilitychange");
     document.dispatchEvent(event);
-    setLoading(false);
   };
 
   return (

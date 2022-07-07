@@ -1,9 +1,8 @@
-import axios from "axios";
+import { useMutation, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
-import { signIn, signOut, useSession } from "next-auth/react";
-import React, { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import Auth from "../components/Auth";
-import Spinner from "../components/globals/Spinner";
+import PostOperations from "../graphql/operations/posts";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -13,6 +12,7 @@ const Home: NextPage = () => {
     <div className="flex h-screen border border-red-500">
       {session && session?.user?.username ? (
         <div>
+          <div>WELCOME TO THE MESSAGING APPLICATION</div>
           <button className="btn btn-primary" onClick={() => signOut()}>
             Logout
           </button>

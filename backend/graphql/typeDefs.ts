@@ -24,9 +24,9 @@ const typeDefs = gql`
     createPost(author: String, comment: String): Post
   }
 
-  #   type Mutation {
-  #     addPost(post: NewPostInput!): [Post]
-  #   }
+  type Mutation {
+    createUsername(username: String): Boolean
+  }
 `;
 
 export default typeDefs;

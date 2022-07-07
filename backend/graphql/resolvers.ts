@@ -50,6 +50,12 @@ const resolvers = {
       posts.push(newPost);
       return newPost;
     },
+
+    createUsername(_: any, args: { username: string }, context: any): boolean {
+      console.log("createUsername args", args);
+
+      return true;
+    },
   },
 };
 
