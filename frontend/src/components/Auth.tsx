@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@apollo/client";
 import axios from "axios";
 import { Session } from "next-auth";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import React, { useState } from "react";
 import UserOperations from "../graphql/operations/users";
 
@@ -20,9 +20,13 @@ const Auth: React.FC<AuthProps> = ({ session }) => {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!username) return;
+
     try {
       const { data } = await createUsername({
         variables: {
+          // will always exist when create separate username component
+          userId: session?.user.id,
           username,
         },
       });

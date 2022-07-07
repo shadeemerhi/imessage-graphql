@@ -8,71 +8,71 @@ generator client {
   binaryTargets   = ["native", "darwin"]
 }
 
-model Account {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.String
-  access_token       String? @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.String
-  session_state      String?
+// model Account {
+//   id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+//   userId             String
+//   type               String
+//   provider           String
+//   providerAccountId  String
+//   refresh_token      String? @db.String
+//   access_token       String? @db.String
+//   expires_at         Int?
+//   token_type         String?
+//   scope              String?
+//   id_token           String? @db.String
+//   session_state      String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
-}
+//   @@unique([provider, providerAccountId])
+// }
 
-model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// model Session {
+//   id           String   @id @default(auto()) @map("_id") @db.ObjectId
+//   sessionToken String   @unique
+//   userId       String
+//   expires      DateTime
+//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
 
-model User {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  name           String?
-  email          String?   @unique
-  emailVerified  DateTime?
-  image          String?
-  username       String?
-  messages       Message[]
-  accounts       Account[]
-  sessions       Session[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-}
+// model User {
+//   id             String    @id @default(auto()) @map("_id") @db.ObjectId
+//   name           String?
+//   email          String?   @unique
+//   emailVerified  DateTime?
+//   image          String?
+//   username       String?  @unique
+//   messages       Message[]
+//   accounts       Account[]
+//   sessions       Session[]
+//   createdAt      DateTime  @default(now())
+//   updatedAt      DateTime  @updatedAt
+// }
 
-model VerificationToken {
-  id         String  @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
-  token      String   @unique
-  expires    DateTime
+// model VerificationToken {
+//   id         String  @id @default(auto()) @map("_id") @db.ObjectId
+//   identifier String
+//   token      String   @unique
+//   expires    DateTime
 
-  @@unique([identifier, token])
-}
+//   @@unique([identifier, token])
+// }
 
-model Conversation {
-  id              String  @id @default(auto()) @map("_id") @db.ObjectId
-  participants    String[]
-  messages        Message[]
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-}
+// model Conversation {
+//   id              String  @id @default(auto()) @map("_id") @db.ObjectId
+//   participants    String[]
+//   messages        Message[]
+//   createdAt       DateTime  @default(now())
+//   updatedAt       DateTime  @updatedAt
+// }
 
-model Message {
-  id              String  @id @default(auto()) @map("_id") @db.ObjectId
-  conversation    Conversation @relation(fields: [conversationId], references: [id])
-  conversationId  String
-  sender          User  @relation(fields: [senderId], references: [id])
-  senderId        String
-  body            String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-}
+// model Message {
+//   id              String  @id @default(auto()) @map("_id") @db.ObjectId
+//   conversation    Conversation @relation(fields: [conversationId], references: [id])
+//   conversationId  String
+//   sender          User  @relation(fields: [senderId], references: [id])
+//   senderId        String
+//   body            String
+//   createdAt       DateTime  @default(now())
+//   updatedAt       DateTime  @updatedAt
+// }

@@ -11,17 +11,21 @@
   "license": "ISC",
   "dependencies": {
     "@graphql-tools/schema": "^8.5.0",
+    "@prisma/client": "^4.0.0",
     "apollo-server-core": "^3.9.0",
     "apollo-server-express": "^3.9.0",
+    "cors": "^2.8.5",
     "express": "^4.18.1",
     "graphql": "^16.5.0",
     "graphql-subscriptions": "^2.0.0",
     "graphql-ws": "^5.9.1",
+    "next-auth": "^4.9.0",
     "ws": "^8.8.0"
   },
   "devDependencies": {
     "@types/ws": "^8.5.3",
     "nodemon": "^2.0.18",
+    "prisma": "^4.0.0",
     "ts-node": "^10.8.2"
   }
 }

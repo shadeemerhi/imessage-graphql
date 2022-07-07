@@ -1,17 +1,12 @@
 import { PubSub } from "graphql-subscriptions";
+import { createUsername } from "../db/helpers/users";
+import { GraphQLContext } from "../util/types";
 
 const pubsub = new PubSub();
 
 interface Post {
   author: string;
   comment: string;
-}
-
-interface NewPostInput {
-  post: {
-    author: string;
-    comment: string;
-  };
 }
 
 // Test data
@@ -51,10 +46,22 @@ const resolvers = {
       return newPost;
     },
 
-    createUsername(_: any, args: { username: string }, context: any): boolean {
-      console.log("createUsername args", args);
+    async createUsername(
+      _: any,
+      args: { userId: string; username: string },
+      context: GraphQLContext
+    ): Promise<boolean> {
+      const { session } = context;
 
-      return true;
+      if (!session?.user) {
+        return false;
+      }
+
+      console.log("HERE IS USER ID", session.user.id);
+
+      const { userId, username } = args;
+
+      return await createUsername(userId, username);
     },
   },
 };

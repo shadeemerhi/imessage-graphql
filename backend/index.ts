@@ -7,6 +7,9 @@ import { createServer } from "http";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
+import { getSession } from "next-auth/react";
+import cors from "cors";
+import { GraphQLContext, Session, User } from "./util/types";
 
 const main = async () => {
   // Create the schema, which will be used separately by ApolloServer and
@@ -17,6 +20,14 @@ const main = async () => {
   // server and the ApolloServer to this HTTP server.
   const app = express();
   const httpServer = createServer(app);
+
+  const corsOptions = {
+    origin: "http://localhost:3000",
+    credentials: true,
+  };
+
+  // enable cors - NOT WORKING FOR SOME REASON
+  app.use(cors(corsOptions));
 
   // Create our WebSocket server using the HTTP server we just set up.
   const wsServer = new WebSocketServer({
@@ -31,6 +42,13 @@ const main = async () => {
     schema,
     csrfPrevention: true,
     cache: "bounded",
+    context: async ({ req, res }): Promise<GraphQLContext> => {
+      const session = await getSession({ req });
+
+      res.header("Access-Control-Allow-Origin", ["http://localhost:3000"]);
+
+      return { session: session as Session };
+    },
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
