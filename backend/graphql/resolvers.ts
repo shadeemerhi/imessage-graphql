@@ -48,7 +48,7 @@ const resolvers = {
 
     async createUsername(
       _: any,
-      args: { userId: string; username: string },
+      args: { username: string },
       context: GraphQLContext
     ): Promise<boolean> {
       const { session } = context;
@@ -57,11 +57,12 @@ const resolvers = {
         return false;
       }
 
+      const { id } = session.user;
+      const { username } = args;
+
       console.log("HERE IS USER ID", session.user.id);
 
-      const { userId, username } = args;
-
-      return await createUsername(userId, username);
+      return await createUsername(id, username);
     },
   },
 };
