@@ -1,6 +1,6 @@
 import { PubSub } from "graphql-subscriptions";
 import { createUsername } from "../db/helpers/users";
-import { GraphQLContext } from "../util/types";
+import { CreateUsernameResponse, GraphQLContext } from "../util/types";
 
 const pubsub = new PubSub();
 
@@ -50,17 +50,17 @@ const resolvers = {
       _: any,
       args: { username: string },
       context: GraphQLContext
-    ): Promise<boolean> {
+    ): Promise<CreateUsernameResponse> {
       const { session } = context;
 
       if (!session?.user) {
-        return false;
+        return {
+          error: "Not authorized",
+        };
       }
 
       const { id } = session.user;
       const { username } = args;
-
-      console.log("HERE IS USER ID", session.user.id);
 
       return await createUsername(id, username);
     },

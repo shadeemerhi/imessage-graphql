@@ -1,11 +1,12 @@
 import { PrismaClient } from "@prisma/client";
+import { CreateUsernameResponse } from "../../util/types";
 
 const prisma = new PrismaClient();
 
 export const createUsername = async (
   userId: string,
   username: string
-): Promise<boolean> => {
+): Promise<CreateUsernameResponse> => {
   try {
     /**
      * Check if username taken by another user
@@ -17,12 +18,14 @@ export const createUsername = async (
     });
 
     if (existingUser) {
-      return false;
+      return {
+        error: "Username already taken. Try another",
+      };
     }
 
-    // /**
-    //  * update username
-    //  */
+    /**
+     * update username
+     */
     await prisma.user.update({
       where: {
         id: userId,
@@ -32,9 +35,11 @@ export const createUsername = async (
       },
     });
 
-    return true;
-  } catch (error) {
+    return { success: true };
+  } catch (error: any) {
     console.log("createUsername error", error);
-    return false;
+    return {
+      error: error?.message as string,
+    };
   }
 };

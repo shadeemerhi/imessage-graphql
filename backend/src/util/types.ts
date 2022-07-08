@@ -5,6 +5,11 @@ export interface User {
   username: string;
 }
 
+export interface CreateUsernameResponse {
+  success?: boolean;
+  error?: string;
+}
+
 export interface Session {
   user?: User;
 }

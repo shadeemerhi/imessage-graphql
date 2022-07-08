@@ -6,12 +6,6 @@ const typeDefs = gql`
     comment: String
   }
 
-  #   input NewPostInput {
-  #     title: String!
-  #     author: String!
-  #     body: String!
-  #   }
-
   type Subscription {
     postCreated: Post
   }
@@ -25,7 +19,12 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createUsername(username: String!): Boolean
+    createUsername(username: String!): CreateUsernameResponse
+  }
+
+  type CreateUsernameResponse {
+    success: Boolean
+    error: String
   }
 `;
 

@@ -1,21 +1,21 @@
-import { useMutation, useQuery } from "@apollo/client";
-import axios from "axios";
+import { useMutation } from "@apollo/client";
 import { Session } from "next-auth";
-import { signIn, useSession } from "next-auth/react";
-import React, { useState } from "react";
+import { signIn } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import UserOperations from "../graphql/operations/users";
 
 interface AuthProps {
   session: Session | null;
+  reloadSession: any;
 }
 
-const Auth: React.FC<AuthProps> = ({ session }) => {
+const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
 
   const [createUsername, { data, loading, error }] = useMutation(
     UserOperations.Mutations.createUsername
   );
-  console.log("HERE IS RESPONSE", data, loading, error);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -25,28 +25,30 @@ const Auth: React.FC<AuthProps> = ({ session }) => {
     try {
       const { data } = await createUsername({
         variables: {
-          // will always exist when create separate username component
           userId: session?.user.id,
           username,
         },
       });
-      console.log("INSIDE FUNCTION", data);
 
-      if (!data?.createUsername?.success) {
-        /**
-         * Display something on UI indicating invalid username
-         */
+      if (data.createUsername.error) {
+        const {
+          createUsername: { error },
+        } = data;
+
+        toast.error(error);
         return;
       }
 
-      // reloadSession();
+      toast.success("Username successfully created");
+
+      /**
+       * Reload session to obtain new username
+       */
+      reloadSession();
     } catch (error) {
+      toast.error("There was an error");
       console.log("onSubmit error", error);
     }
-  };
-  const reloadSession = () => {
-    const event = new Event("visibilitychange");
-    document.dispatchEvent(event);
   };
 
   return (

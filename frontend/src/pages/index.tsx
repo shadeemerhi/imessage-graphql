@@ -1,12 +1,14 @@
-import { useMutation, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
 import { signOut, useSession } from "next-auth/react";
 import Auth from "../components/Auth";
-import PostOperations from "../graphql/operations/posts";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
-  console.log("HERE IS SESSION", session);
+
+  const reloadSession = () => {
+    const event = new Event("visibilitychange");
+    document.dispatchEvent(event);
+  };
 
   return (
     <div className="flex h-screen border border-red-500">
@@ -18,7 +20,7 @@ const Home: NextPage = () => {
           </button>
         </div>
       ) : (
-        <Auth session={session} />
+        <Auth session={session} reloadSession={reloadSession} />
       )}
     </div>
   );
