@@ -12,7 +12,7 @@ const Home: NextPage = () => {
   };
 
   return (
-    <div className="flex h-screen border border-red-500">
+    <div>
       {session && session?.user?.username ? (
         <Chat />
       ) : (

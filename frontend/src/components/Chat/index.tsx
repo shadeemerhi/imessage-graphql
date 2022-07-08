@@ -6,7 +6,7 @@ interface ChatProps {}
 
 const Chat: React.FC<ChatProps> = () => {
   return (
-    <div className="flex w-full border border-orange-500">
+    <div>
       <Conversations />
       <Feed />
     </div>
