@@ -5,8 +5,7 @@ interface FeedProps {}
 
 const Feed: React.FC<FeedProps> = () => {
   return (
-    <div>
-      THIS IS FEED
+    <div className="w-full border border-blue-500">
       <button className="btn btn-primary" onClick={() => signOut()}>
         Logout
       </button>
