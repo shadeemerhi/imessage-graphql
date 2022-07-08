@@ -1,13 +1,13 @@
 import { useMutation } from "@apollo/client";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
-import UserOperations from "../graphql/operations/users";
+import UserOperations from "../../graphql/operations/users";
 
 interface AuthProps {
   session: Session | null;
-  reloadSession: any;
+  reloadSession: () => void;
 }
 
 const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
