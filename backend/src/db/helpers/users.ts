@@ -10,27 +10,27 @@ export const createUsername = async (
     /**
      * Check if username taken by another user
      */
-    // const existingUser = await prisma.user.findUnique({
-    //   where: {
-    //     username,
-    //   },
-    // });
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        username,
+      },
+    });
 
-    // if (existingUser) {
-    //   return false;
-    // }
+    if (existingUser) {
+      return false;
+    }
 
     // /**
     //  * update username
     //  */
-    // await prisma.user.update({
-    //   where: {
-    //     id: userId,
-    //   },
-    //   data: {
-    //     username,
-    //   },
-    // });
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        username,
+      },
+    });
 
     return true;
   } catch (error) {

@@ -1,8 +1,6 @@
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import express from "express";
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
 import { createServer } from "http";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { WebSocketServer } from "ws";
@@ -10,6 +8,8 @@ import { useServer } from "graphql-ws/lib/use/ws";
 import { getSession } from "next-auth/react";
 import cors from "cors";
 import { GraphQLContext, Session, User } from "./util/types";
+import resolvers from "./graphql/resolvers";
+import typeDefs from "./graphql/typeDefs";
 
 const main = async () => {
   // Create the schema, which will be used separately by ApolloServer and
@@ -45,7 +45,7 @@ const main = async () => {
     context: async ({ req, res }): Promise<GraphQLContext> => {
       const session = await getSession({ req });
 
-      res.header("Access-Control-Allow-Origin", ["http://localhost:3000"]);
+      res.header("Access-Control-Allow-Origin", process.env.BASE_URL);
 
       return { session: session as Session };
     },
