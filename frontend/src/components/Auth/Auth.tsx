@@ -1,4 +1,5 @@
 import { useMutation } from "@apollo/client";
+import { Button, Center, Image, Input, Stack, Text } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
@@ -17,9 +18,7 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
     UserOperations.Mutations.createUsername
   );
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const onSubmit = async () => {
     if (!username) return;
 
     try {
@@ -52,33 +51,35 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
   };
 
   return (
-    <div>
-      <div>
+    <Center height="100vh">
+      <Stack spacing={8} align="center">
         {session ? (
           <>
-            <p>Create a Username</p>
-            <form onSubmit={onSubmit}>
-              <input
-                placeholder="Enter a username"
-                value={username}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setUsername(event.target.value)
-                }
-              />
-              <button type="submit">Save</button>
-            </form>
+            <Text fontSize="3xl">Create a Username</Text>
+            <Input
+              placeholder="Enter a username"
+              value={username}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setUsername(event.target.value)
+              }
+            />
+            <Button onClick={onSubmit} width="100%" isLoading={loading}>
+              Save
+            </Button>
           </>
         ) : (
           <>
-            <p>MessengerQL</p>
-            <button onClick={() => signIn("google")}>
-              {/* <img className="h-1/2" src="/images/googlelogo.png" /> */}
+            <Text fontSize="3xl">MessengerQL</Text>
+            <Button
+              onClick={() => signIn("google")}
+              leftIcon={<Image height="20px" src="/images/googlelogo.png" />}
+            >
               Continue with Google
-            </button>
+            </Button>
           </>
         )}
-      </div>
-    </div>
+      </Stack>
+    </Center>
   );
 };
 export default Auth;
