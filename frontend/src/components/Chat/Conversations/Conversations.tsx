@@ -6,6 +6,7 @@ interface ConversationsProps {}
 
 const testConversations = [
   {
+    id: "12345",
     otherPersonName: "Sunny",
     latestMessage: {
       body: "Hey dude lol",
@@ -25,6 +26,7 @@ const Conversations: React.FC<ConversationsProps> = () => {
     >
       {testConversations.map((conversation) => (
         <Stack
+          key={conversation.id}
           direction="row"
           spacing={4}
           p={4}
