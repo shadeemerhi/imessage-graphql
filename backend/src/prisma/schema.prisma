@@ -46,6 +46,7 @@ model User {
   image          String?
   username       String?  @unique
   messages       Message[]
+  conversations  ConversationParticipants[]
   accounts       Account[]
   sessions       Session[]
   createdAt      DateTime  @default(now())
@@ -63,12 +64,20 @@ model VerificationToken {
 
 model Conversation {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  participants    String[]
+  participants    ConversationParticipants[]
   messages        Message[] @relation("conversationMessages")
   latestMessage   Message   @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
   latestMessageId String    @unique
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model ConversationParticipants {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String
+  conversation    Conversation @relation(fields: [conversationId], references: [id])
+  conversationId  String
 }
 
 model Message {
