@@ -1,4 +1,4 @@
-import { Box, Button, useColorMode } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import Auth from "../components/Auth/Auth";
@@ -12,8 +12,6 @@ const Home: NextPage = () => {
     document.dispatchEvent(event);
   };
 
-  const { colorMode, toggleColorMode } = useColorMode();
-
   return (
     <Box>
       {session && session?.user?.username ? (
@@ -21,9 +19,6 @@ const Home: NextPage = () => {
       ) : (
         <Auth session={session} reloadSession={reloadSession} />
       )}
-      <Button onClick={toggleColorMode}>
-        Toggle {colorMode === "light" ? "Dark" : "Light"}
-      </Button>
     </Box>
   );
 };
