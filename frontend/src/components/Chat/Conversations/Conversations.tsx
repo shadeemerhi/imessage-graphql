@@ -1,6 +1,11 @@
 import { Avatar, Flex, Stack, Text } from "@chakra-ui/react";
 import React from "react";
+import ConversationOperations, {
+  IConversationsData,
+} from "../../../graphql/operations/conversations";
 import moment from "moment";
+import { useQuery } from "@apollo/client";
+import toast from "react-hot-toast";
 
 interface ConversationsProps {}
 
@@ -16,6 +21,20 @@ const testConversations = [
 ];
 
 const Conversations: React.FC<ConversationsProps> = () => {
+  const { data, loading, error } = useQuery<IConversationsData, null>(
+    ConversationOperations.Queries.conversations
+  );
+
+  console.log("HERE IS CONVERSATION DATA", data, loading, error);
+
+  if (loading) {
+    return <div>Loading</div>;
+  }
+
+  if (error) {
+    toast.error("There was an error fetching conversations");
+  }
+
   return (
     <Flex
       direction="column"

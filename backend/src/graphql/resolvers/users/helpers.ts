@@ -1,12 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { CreateUsernameResponse } from "../../../util/types";
+import { ICreateUsernameResponse } from ".";
 
 const prisma = new PrismaClient();
 
 export const verifyAndCreateUsername = async (
   userId: string,
   username: string
-): Promise<CreateUsernameResponse> => {
+): Promise<ICreateUsernameResponse> => {
   try {
     /**
      * Check if username taken by another user

@@ -14,8 +14,13 @@ export default {
 };
 
 export interface IConversationsData {
-  conversations: {
-    participants: string[];
-    latestMessage: any; // will be Message
-  };
+  conversations: Array<Conversation>;
+}
+
+// temp
+interface Conversation {
+  id: string;
+  latestMessageId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

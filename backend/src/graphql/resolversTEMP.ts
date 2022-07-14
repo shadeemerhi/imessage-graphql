@@ -1,5 +1,5 @@
 import { PubSub } from "graphql-subscriptions";
-import { CreateUsernameResponse, GraphQLContext } from "../util/types";
+import { GraphQLContext } from "../util/types";
 import { verifyAndCreateUsername } from "./resolvers/users/helpers";
 
 const pubsub = new PubSub();
@@ -50,7 +50,7 @@ const resolvers = {
       _: any,
       args: { username: string },
       context: GraphQLContext
-    ): Promise<CreateUsernameResponse> {
+    ): Promise<any> {
       const { session } = context;
 
       if (!session?.user) {

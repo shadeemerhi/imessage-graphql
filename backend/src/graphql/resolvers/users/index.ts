@@ -1,14 +1,13 @@
-import { CreateUsernameResponse, GraphQLContext } from "../../../util/types";
+import { GraphQLContext } from "../../../util/types";
 import { verifyAndCreateUsername } from "./helpers";
 
 const resolvers = {
-  Query: {},
   Mutation: {
     createUsername: async function createUsername(
       _: any,
       args: { username: string },
       context: GraphQLContext
-    ): Promise<CreateUsernameResponse> {
+    ): Promise<ICreateUsernameResponse> {
       const { session } = context;
       console.log("at the api hehe");
 
@@ -24,7 +23,11 @@ const resolvers = {
       return await verifyAndCreateUsername(id, username);
     },
   },
-  Subscription: {},
 };
+
+export interface ICreateUsernameResponse {
+  success?: boolean;
+  error?: string;
+}
 
 export default resolvers;
