@@ -1,6 +1,7 @@
 import { gql } from "apollo-server-express";
 
 const typeDefs = gql`
+  # --- TESTING ---
   type Post {
     author: String
     comment: String
@@ -17,6 +18,7 @@ const typeDefs = gql`
   type Mutation {
     createPost(author: String, comment: String): Post
   }
+  # --- TESTING ---
 
   type Mutation {
     createUsername(username: String!): CreateUsernameResponse
@@ -25,6 +27,16 @@ const typeDefs = gql`
   type CreateUsernameResponse {
     success: Boolean
     error: String
+  }
+
+  # Need to revisit this
+  type Conversation {
+    id: String
+    latestMessageId: String
+  }
+
+  type Query {
+    conversations: [Conversation]
   }
 `;
 
