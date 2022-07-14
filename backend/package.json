@@ -19,10 +19,12 @@
     "graphql": "^16.5.0",
     "graphql-subscriptions": "^2.0.0",
     "graphql-ws": "^5.9.1",
+    "lodash.merge": "^4.6.2",
     "next-auth": "^4.9.0",
     "ws": "^8.8.0"
   },
   "devDependencies": {
+    "@types/lodash.merge": "^4.6.7",
     "@types/ws": "^8.5.3",
     "nodemon": "^2.0.18",
     "prisma": "^4.0.0",
