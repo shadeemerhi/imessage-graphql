@@ -14,3 +14,14 @@ export default {
   },
   Subscriptions: {},
 };
+
+export interface ICreateUsernameVariables {
+  username: string;
+}
+
+export interface ICreateUsernameData {
+  createUsername: {
+    success: boolean;
+    error: string;
+  };
+}

@@ -4,7 +4,10 @@ import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import UserOperations from "../../graphql/operations/users";
+import UserOperations, {
+  ICreateUsernameData,
+  ICreateUsernameVariables,
+} from "../../graphql/operations/users";
 
 interface AuthProps {
   session: Session | null;
@@ -14,9 +17,10 @@ interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
 
-  const [createUsername, { data, loading, error }] = useMutation(
-    UserOperations.Mutations.createUsername
-  );
+  const [createUsername, { data, loading, error }] = useMutation<
+    ICreateUsernameData,
+    ICreateUsernameVariables
+  >(UserOperations.Mutations.createUsername);
 
   const onSubmit = async () => {
     if (!username) return;
@@ -24,10 +28,13 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
     try {
       const { data } = await createUsername({
         variables: {
-          userId: session?.user.id,
           username,
         },
       });
+
+      if (!data?.createUsername) {
+        throw new Error();
+      }
 
       if (data.createUsername.error) {
         const {
