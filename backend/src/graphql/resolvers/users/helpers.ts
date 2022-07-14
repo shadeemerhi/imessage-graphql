@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-import { CreateUsernameResponse } from "../../util/types";
+import { CreateUsernameResponse } from "../../../util/types";
 
 const prisma = new PrismaClient();
 
-export const createUsername = async (
+export const verifyAndCreateUsername = async (
   userId: string,
   username: string
 ): Promise<CreateUsernameResponse> => {

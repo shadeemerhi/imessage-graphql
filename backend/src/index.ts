@@ -7,14 +7,17 @@ import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { getSession } from "next-auth/react";
 import cors from "cors";
-import { GraphQLContext, Session, User } from "./util/types";
+import { GraphQLContext, Session } from "./util/types";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 
 const main = async () => {
   // Create the schema, which will be used separately by ApolloServer and
   // the WebSocket server.
-  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+  });
 
   // Create an Express app and HTTP server; we will attach both the WebSocket
   // server and the ApolloServer to this HTTP server.

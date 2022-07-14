@@ -1,6 +1,6 @@
 import { PubSub } from "graphql-subscriptions";
-import { createUsername } from "../db/helpers/users";
 import { CreateUsernameResponse, GraphQLContext } from "../util/types";
+import { verifyAndCreateUsername } from "./resolvers/users/helpers";
 
 const pubsub = new PubSub();
 
@@ -62,7 +62,7 @@ const resolvers = {
       const { id } = session.user;
       const { username } = args;
 
-      return await createUsername(id, username);
+      return await verifyAndCreateUsername(id, username);
     },
   },
 };
