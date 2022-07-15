@@ -41,8 +41,6 @@ const resolvers = {
           },
         });
 
-        console.log("HERE ARE conversations", conversations);
-
         return conversations;
       } catch (error: any) {
         console.log("error", error);
