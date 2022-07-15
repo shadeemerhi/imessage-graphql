@@ -1,7 +1,7 @@
 import { Avatar, Flex, Stack, Text } from "@chakra-ui/react";
 import React from "react";
 import ConversationOperations, {
-  IConversationsData,
+  ConversationsData,
 } from "../../../graphql/operations/conversations";
 import moment from "moment";
 import { useQuery } from "@apollo/client";
@@ -21,7 +21,7 @@ const testConversations = [
 ];
 
 const Conversations: React.FC<ConversationsProps> = () => {
-  const { data, loading, error } = useQuery<IConversationsData, null>(
+  const { data, loading, error } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
 

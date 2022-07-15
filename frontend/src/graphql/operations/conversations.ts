@@ -5,22 +5,45 @@ export default {
     conversations: gql`
       query Conversations {
         conversations {
-          participants
-          latestMessage
+          participants {
+            userId
+          }
+          latestMessage {
+            body
+          }
         }
       }
     `,
   },
 };
 
-export interface IConversationsData {
-  conversations: Array<Conversation>;
+export interface ConversationsData {
+  conversations: Array<ConversationFE>;
 }
 
-// temp
 interface Conversation {
   id: string;
   latestMessageId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ConversationFE extends Conversation {
+  participants: ConversationParticipants[];
+  latestMessage: Message;
+}
+
+interface ConversationParticipants {
+  id: string;
+  userId: string;
+  conversationId: string;
+}
+
+interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
   createdAt: Date;
   updatedAt: Date;
 }
