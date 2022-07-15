@@ -1,4 +1,10 @@
-import { Conversation, PrismaClient } from "@prisma/client";
+import {
+  Conversation,
+  ConversationParticipants,
+  Message,
+  PrismaClient,
+} from "@prisma/client";
+import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
 
 const prisma = new PrismaClient();
@@ -9,13 +15,11 @@ const resolvers = {
       _: any,
       args: Record<string, never>,
       context: GraphQLContext
-    ): Promise<IConversationsResponse> {
+    ): Promise<Array<ConversationFE>> {
       const { session } = context;
 
       if (!session?.user) {
-        return {
-          error: "Not authorized",
-        };
+        throw new ApolloError("Not authorized");
       }
 
       try {
@@ -31,21 +35,26 @@ const resolvers = {
               },
             },
           },
+          include: {
+            participants: true,
+            latestMessage: true,
+          },
         });
 
-        return { conversations };
+        console.log("HERE ARE conversations", conversations);
+
+        return conversations;
       } catch (error: any) {
-        return {
-          error: error?.message as string,
-        };
+        console.log("error", error);
+        throw new ApolloError(error?.message);
       }
     },
   },
 };
 
-interface IConversationsResponse {
-  conversations?: Array<Conversation>;
-  error?: string;
+interface ConversationFE extends Conversation {
+  participants: ConversationParticipants[];
+  latestMessage: Message;
 }
 
 export default resolvers;
