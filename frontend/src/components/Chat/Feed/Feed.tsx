@@ -1,5 +1,4 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { signOut } from "next-auth/react";
 import React from "react";
 import MessageInput from "./Input";
 
@@ -16,7 +15,6 @@ const Feed: React.FC<FeedProps> = ({ convId, setConvId }) => {
       justify="space-between"
       flexGrow={1}
     >
-      <Button onClick={() => signOut()}>Logout</Button>
       <Button
         display={{ base: "unset", md: "none" }}
         onClick={() => setConvId("")}
@@ -24,9 +22,6 @@ const Feed: React.FC<FeedProps> = ({ convId, setConvId }) => {
         Back
       </Button>
       <Box>
-        <Text>Hello</Text>
-        <Text>Hello</Text>
-        <Text>Hello</Text>
         <Text>Hello</Text>
       </Box>
       <MessageInput />

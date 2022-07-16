@@ -1,19 +1,20 @@
+import { useQuery } from "@apollo/client";
 import {
   Avatar,
   Box,
+  Button,
   Flex,
-  Input,
   Stack,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import moment from "moment";
+import { signOut } from "next-auth/react";
 import React from "react";
+import toast from "react-hot-toast";
 import ConversationOperations, {
   ConversationsData,
 } from "../../../graphql/operations/conversations";
-import moment from "moment";
-import { useQuery } from "@apollo/client";
-import toast from "react-hot-toast";
 import ConversationSearchModal from "./SearchModal";
 
 interface ConversationsProps {
@@ -75,22 +76,23 @@ const Conversations: React.FC<ConversationsProps> = ({ convId, setConvId }) => {
       width={{ base: "100%", md: "30%" }}
       maxWidth={{ base: "none", md: "360px" }}
       bg="whiteAlpha.50"
-      p={3}
+      py={6}
+      px={3}
+      position="relative"
     >
       <Box
-        p={2}
+        py={2}
+        px={4}
         bg="blackAlpha.300"
         borderRadius={4}
         cursor="pointer"
         onClick={onModalOpen}
       >
-        <Text color="whiteAlpha.900">Find or start a conversation</Text>
+        <Text color="whiteAlpha.800" fontWeight={500}>
+          Find or start a conversation
+        </Text>
       </Box>
-      <ConversationSearchModal
-        isOpen={modalIsOpen}
-        onOpen={onModalOpen}
-        onClose={onModalClose}
-      />
+      <ConversationSearchModal isOpen={modalIsOpen} onClose={onModalClose} />
       {testConversations.map((conversation) => (
         <Stack
           key={conversation.id}
@@ -116,6 +118,11 @@ const Conversations: React.FC<ConversationsProps> = ({ convId, setConvId }) => {
           </Flex>
         </Stack>
       ))}
+      <Box position="absolute" bottom={0} left={0} width="100%" p={8}>
+        <Button width="100%" onClick={() => signOut()}>
+          Logout
+        </Button>
+      </Box>
     </Stack>
   );
 };
