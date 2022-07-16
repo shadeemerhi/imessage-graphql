@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Slide,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { signOut } from "next-auth/react";
 import React from "react";
 import MessageInput from "./Input";
