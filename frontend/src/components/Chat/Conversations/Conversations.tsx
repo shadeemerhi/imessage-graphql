@@ -7,7 +7,10 @@ import moment from "moment";
 import { useQuery } from "@apollo/client";
 import toast from "react-hot-toast";
 
-interface ConversationsProps {}
+interface ConversationsProps {
+  convId: string;
+  setConvId: React.Dispatch<React.SetStateAction<string>>;
+}
 
 const testConversations = [
   {
@@ -20,7 +23,7 @@ const testConversations = [
   },
 ];
 
-const Conversations: React.FC<ConversationsProps> = () => {
+const Conversations: React.FC<ConversationsProps> = ({ convId, setConvId }) => {
   const { data, loading, error } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
@@ -38,8 +41,9 @@ const Conversations: React.FC<ConversationsProps> = () => {
   return (
     <Flex
       direction="column"
-      width="30%"
-      maxWidth="360px"
+      display={{ base: convId ? "none" : "flex", md: "flex" }}
+      width={{ base: "100%", md: "30%" }}
+      maxWidth={{ base: "none", md: "360px" }}
       bg="whiteAlpha.50"
       p={2}
     >
@@ -52,6 +56,7 @@ const Conversations: React.FC<ConversationsProps> = () => {
           cursor="pointer"
           borderRadius={4}
           _hover={{ bg: "whiteAlpha.200" }}
+          onClick={() => setConvId(conversation.id)}
         >
           <Avatar />
           <Flex justify="space-between" width="100%">
