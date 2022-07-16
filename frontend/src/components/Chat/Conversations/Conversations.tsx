@@ -1,4 +1,12 @@
-import { Avatar, Flex, Stack, Text } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Flex,
+  Input,
+  Stack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import React from "react";
 import ConversationOperations, {
   ConversationsData,
@@ -6,6 +14,7 @@ import ConversationOperations, {
 import moment from "moment";
 import { useQuery } from "@apollo/client";
 import toast from "react-hot-toast";
+import ConversationSearchModal from "./SearchModal";
 
 interface ConversationsProps {
   convId: string;
@@ -21,12 +30,33 @@ const testConversations = [
       created_at: Date.now(),
     },
   },
+  {
+    id: "12345",
+    otherPersonName: "Sunny",
+    latestMessage: {
+      body: "Hey dude lol",
+      created_at: Date.now(),
+    },
+  },
+  {
+    id: "12345",
+    otherPersonName: "Sunny",
+    latestMessage: {
+      body: "Hey dude lol",
+      created_at: Date.now(),
+    },
+  },
 ];
 
 const Conversations: React.FC<ConversationsProps> = ({ convId, setConvId }) => {
   const { data, loading, error } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
+  const {
+    isOpen: modalIsOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
+  } = useDisclosure();
 
   console.log("HERE IS CONVERSATION DATA", data, loading, error);
 
@@ -39,14 +69,28 @@ const Conversations: React.FC<ConversationsProps> = ({ convId, setConvId }) => {
   }
 
   return (
-    <Flex
+    <Stack
       direction="column"
       display={{ base: convId ? "none" : "flex", md: "flex" }}
       width={{ base: "100%", md: "30%" }}
       maxWidth={{ base: "none", md: "360px" }}
       bg="whiteAlpha.50"
-      p={2}
+      p={3}
     >
+      <Box
+        p={2}
+        bg="blackAlpha.300"
+        borderRadius={4}
+        cursor="pointer"
+        onClick={onModalOpen}
+      >
+        <Text color="whiteAlpha.900">Find or start a conversation</Text>
+      </Box>
+      <ConversationSearchModal
+        isOpen={modalIsOpen}
+        onOpen={onModalOpen}
+        onClose={onModalClose}
+      />
       {testConversations.map((conversation) => (
         <Stack
           key={conversation.id}
@@ -72,7 +116,7 @@ const Conversations: React.FC<ConversationsProps> = ({ convId, setConvId }) => {
           </Flex>
         </Stack>
       ))}
-    </Flex>
+    </Stack>
   );
 };
 export default Conversations;
