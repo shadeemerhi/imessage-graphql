@@ -10,15 +10,12 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 
-interface ConversationSearchModal {
+interface SearchModal {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ConversationSearchModal: React.FC<ConversationSearchModal> = ({
-  isOpen,
-  onClose,
-}) => {
+const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -36,4 +33,4 @@ const ConversationSearchModal: React.FC<ConversationSearchModal> = ({
     </>
   );
 };
-export default ConversationSearchModal;
+export default SearchModal;

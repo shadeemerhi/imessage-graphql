@@ -28,7 +28,7 @@ interface Conversation {
   updatedAt: Date;
 }
 
-interface ConversationFE extends Conversation {
+export interface ConversationFE extends Conversation {
   participants: ConversationParticipants[];
   latestMessage: Message;
 }

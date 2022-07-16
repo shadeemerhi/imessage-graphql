@@ -1,11 +1,12 @@
 import { Box } from "@chakra-ui/react";
-import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
+import type { NextPage, NextPageContext } from "next";
+import { getSession, useSession } from "next-auth/react";
 import Auth from "../components/Auth/Auth";
 import Chat from "../components/Chat";
 
 const Home: NextPage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  console.log("HERE IS SESSION", session, status);
 
   const reloadSession = () => {
     const event = new Event("visibilitychange");
@@ -22,5 +23,15 @@ const Home: NextPage = () => {
     </Box>
   );
 };
+
+export async function getServerSideProps(ctx: NextPageContext) {
+  const session = await getSession(ctx);
+
+  return {
+    props: {
+      session,
+    },
+  };
+}
 
 export default Home;
