@@ -1,7 +1,18 @@
 import { gql } from "@apollo/client";
+import { User } from "@prisma/client";
 
 export default {
-  Queries: {},
+  Queries: {
+    searchUsers: gql`
+      query SearchUsers($username: String!) {
+        searchUsers(username: $username) {
+          users {
+            username
+          }
+        }
+      }
+    `,
+  },
   Mutations: {
     createUsername: gql`
       mutation CreateUsername($username: String!) {
@@ -24,4 +35,12 @@ export interface ICreateUsernameData {
     success: boolean;
     error: string;
   };
+}
+
+export interface UserSearchInput {
+  username: string;
+}
+
+export interface UserSearchData {
+  users: Array<User>;
 }

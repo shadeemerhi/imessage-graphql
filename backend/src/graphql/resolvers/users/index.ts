@@ -1,7 +1,22 @@
+import { User } from "@prisma/client";
 import { GraphQLContext } from "../../../util/types";
 import { verifyAndCreateUsername } from "./helpers";
 
 const resolvers = {
+  Query: {
+    searchUsers: async function searchUsers(
+      _: any,
+      args: { username: string },
+      context: GraphQLContext
+    ): Promise<any> {
+      const { username } = args;
+      console.log("SEARCH USERNAME", username);
+
+      return {
+        users: [],
+      };
+    },
+  },
   Mutation: {
     createUsername: async function createUsername(
       _: any,
@@ -28,6 +43,10 @@ const resolvers = {
 export interface ICreateUsernameResponse {
   success?: boolean;
   error?: string;
+}
+
+export interface SearchUsersResponse {
+  users: Array<User>;
 }
 
 export default resolvers;
