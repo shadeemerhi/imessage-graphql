@@ -6,6 +6,7 @@ export default {
     searchUsers: gql`
       query SearchUsers($username: String!) {
         searchUsers(username: $username) {
+          id
           username
         }
       }
@@ -40,5 +41,7 @@ export interface UserSearchInput {
 }
 
 export interface UserSearchData {
-  users: Array<User>;
+  searchUsers: Array<UserSearch>;
 }
+
+export type UserSearch = Pick<User, "id" | "username">;

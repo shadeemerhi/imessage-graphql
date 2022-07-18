@@ -1,7 +1,6 @@
 import { useLazyQuery } from "@apollo/client";
 import {
   Button,
-  FormControl,
   Input,
   Modal,
   ModalBody,
@@ -9,13 +8,15 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Stack,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import UserOperations, {
   UserSearchData,
   UserSearchInput,
-} from "../../../graphql/operations/users";
+} from "../../../../graphql/operations/users";
+import UserList from "./UserList";
 
 interface SearchModal {
   isOpen: boolean;
@@ -33,14 +34,12 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
   console.log("HERE IS DATA", data);
 
   if (error) {
-    console.log("HERE IS ERROR", error);
     toast.error("Error searching for users");
     return null;
   }
 
-  const onSearch = () => {
-    console.log("SEARCHING", username);
-
+  const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     searchUsers({ variables: { username } });
   };
 
@@ -48,19 +47,27 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent bg="whiteAlpha.50" color="whiteAlpha.900" pb={4}>
+        <ModalContent bg="whiteAlpha.100" color="whiteAlpha.900" pb={4}>
           <ModalHeader>Find or Create a Conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl isInvalid={false}>
-              <Input
-                placeholder="Enter a username"
-                onChange={(event) => setUsername(event.target.value)}
-              />
-              <Button onClick={onSearch} isLoading={loading}>
-                Search
-              </Button>
-            </FormControl>
+            <form onSubmit={onSearch}>
+              <Stack spacing={4}>
+                <Input
+                  placeholder="Enter a username"
+                  onChange={(event) => setUsername(event.target.value)}
+                />
+                <Button
+                  width="100%"
+                  type="submit"
+                  isLoading={loading}
+                  disabled={!username}
+                >
+                  Search
+                </Button>
+              </Stack>
+            </form>
+            {data?.searchUsers && <UserList users={data.searchUsers} />}
           </ModalBody>
         </ModalContent>
       </Modal>

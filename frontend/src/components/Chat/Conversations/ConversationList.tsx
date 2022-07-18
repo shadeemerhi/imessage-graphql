@@ -11,7 +11,7 @@ import moment from "moment";
 import { signOut } from "next-auth/react";
 import React from "react";
 import { ConversationFE } from "../../../graphql/operations/conversations";
-import ConversationSearchModal from "./SearchModal";
+import ConversationSearchModal from "./SearchModal/SearchModal";
 
 type ConversationListProps = {
   conversations: Array<ConversationFE>;
