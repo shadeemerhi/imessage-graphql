@@ -10,6 +10,7 @@ import cors from "cors";
 import { GraphQLContext, Session } from "./util/types";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
+import { PrismaClient } from "@prisma/client";
 
 const main = async () => {
   // Create the schema, which will be used separately by ApolloServer and
@@ -39,7 +40,6 @@ const main = async () => {
   });
   // Save the returned server's info so we can shutdown this server later
   const serverCleanup = useServer({ schema }, wsServer);
-
   // Set up ApolloServer.
   const server = new ApolloServer({
     schema,
@@ -47,10 +47,11 @@ const main = async () => {
     cache: "bounded",
     context: async ({ req, res }): Promise<GraphQLContext> => {
       const session = await getSession({ req });
+      const prisma = new PrismaClient();
 
       res.header("Access-Control-Allow-Origin", process.env.BASE_URL);
 
-      return { session: session as Session };
+      return { session: session as Session, prisma };
     },
     plugins: [
       // Proper shutdown for the HTTP server.

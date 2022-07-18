@@ -2,12 +2,9 @@ import {
   Conversation,
   ConversationParticipants,
   Message,
-  PrismaClient,
 } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
-
-const prisma = new PrismaClient();
 
 const resolvers = {
   Query: {
@@ -16,7 +13,7 @@ const resolvers = {
       args: Record<string, never>,
       context: GraphQLContext
     ): Promise<Array<ConversationFE>> {
-      const { session } = context;
+      const { session, prisma } = context;
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
