@@ -1,4 +1,5 @@
 import { User } from "@prisma/client";
+import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
 import { verifyAndCreateUsername } from "./helpers";
 
@@ -8,13 +9,22 @@ const resolvers = {
       _: any,
       args: { username: string },
       context: GraphQLContext
-    ): Promise<any> {
+    ): Promise<Array<User>> {
       const { username } = args;
-      console.log("SEARCH USERNAME", username);
+      const { prisma } = context;
 
-      return {
-        users: [],
-      };
+      try {
+        const users = await prisma.user.findMany({
+          where: {
+            username,
+          },
+        });
+
+        return users;
+      } catch (error: any) {
+        console.log("error", error);
+        throw new ApolloError(error?.message);
+      }
     },
   },
   Mutation: {
@@ -24,7 +34,6 @@ const resolvers = {
       context: GraphQLContext
     ): Promise<ICreateUsernameResponse> {
       const { session } = context;
-      console.log("at the api hehe");
 
       if (!session?.user) {
         return {

@@ -6,9 +6,7 @@ export default {
     searchUsers: gql`
       query SearchUsers($username: String!) {
         searchUsers(username: $username) {
-          users {
-            username
-          }
+          username
         }
       }
     `,
