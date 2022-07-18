@@ -13,9 +13,11 @@ import {
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import UserOperations, {
+  UserSearch,
   UserSearchData,
   UserSearchInput,
 } from "../../../../graphql/operations/users";
+import Participants from "./Participants";
 import UserList from "./UserList";
 
 interface SearchModal {
@@ -25,13 +27,12 @@ interface SearchModal {
 
 const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState("");
+  const [participants, setParticipants] = useState<Array<UserSearch>>([]);
 
   const [searchUsers, { data, loading, error }] = useLazyQuery<
     UserSearchData,
     UserSearchInput
   >(UserOperations.Queries.searchUsers);
-
-  console.log("HERE IS DATA", data);
 
   if (error) {
     toast.error("Error searching for users");
@@ -41,6 +42,14 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
   const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     searchUsers({ variables: { username } });
+  };
+
+  const addParticipant = (user: UserSearch) => {
+    setParticipants((prev) => [...prev, user]);
+  };
+
+  const removeParticipant = (userId: string) => {
+    setParticipants((prev) => prev.filter((u) => u.id !== userId));
   };
 
   return (
@@ -67,7 +76,19 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
                 </Button>
               </Stack>
             </form>
-            {data?.searchUsers && <UserList users={data.searchUsers} />}
+            {data?.searchUsers && (
+              <UserList
+                users={data.searchUsers}
+                participants={participants}
+                addParticipant={addParticipant}
+              />
+            )}
+            {participants.length !== 0 && (
+              <Participants
+                participants={participants}
+                removeParticipant={removeParticipant}
+              />
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>
