@@ -11,6 +11,7 @@ import { GraphQLContext, Session } from "./util/types";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 import { PrismaClient } from "@prisma/client";
+import { PubSub } from "graphql-subscriptions";
 
 const main = async () => {
   // Create the schema, which will be used separately by ApolloServer and
@@ -48,10 +49,11 @@ const main = async () => {
     context: async ({ req, res }): Promise<GraphQLContext> => {
       const session = await getSession({ req });
       const prisma = new PrismaClient();
+      const pubsub = new PubSub();
 
       res.header("Access-Control-Allow-Origin", process.env.BASE_URL);
 
-      return { session: session as Session, prisma };
+      return { session: session as Session, prisma, pubsub };
     },
     plugins: [
       // Proper shutdown for the HTTP server.
