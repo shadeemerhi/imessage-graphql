@@ -13,10 +13,10 @@ import React from "react";
 import { ConversationFE } from "../../../graphql/operations/conversations";
 import ConversationSearchModal from "./SearchModal/SearchModal";
 
-type ConversationListProps = {
+interface ConversationListProps {
   conversations: Array<ConversationFE>;
   setConvId: React.Dispatch<React.SetStateAction<string>>;
-};
+}
 
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
