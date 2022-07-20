@@ -1,17 +1,17 @@
-import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import express from "express";
-import { createServer } from "http";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import { WebSocketServer } from "ws";
-import { useServer } from "graphql-ws/lib/use/ws";
-import { getSession } from "next-auth/react";
+import { PrismaClient } from "@prisma/client";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+import { ApolloServer } from "apollo-server-express";
 import cors from "cors";
-import { GraphQLContext, Session } from "./util/types";
+import express from "express";
+import { PubSub } from "graphql-subscriptions";
+import { useServer } from "graphql-ws/lib/use/ws";
+import { createServer } from "http";
+import { getSession } from "next-auth/react";
+import { WebSocketServer } from "ws";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
-import { PrismaClient } from "@prisma/client";
-import { PubSub } from "graphql-subscriptions";
+import { GraphQLContext, Session, SubscriptionContext } from "./util/types";
 
 const main = async () => {
   // Create the schema, which will be used separately by ApolloServer and
@@ -39,8 +39,37 @@ const main = async () => {
     server: httpServer,
     path: "/graphql/subscriptions",
   });
+
+  // Context parameters
+  const prisma = new PrismaClient();
+  const pubsub = new PubSub();
+
+  const getSubscriptionContext = async (
+    ctx: SubscriptionContext
+  ): Promise<GraphQLContext> => {
+    ctx;
+    // ctx is the graphql-ws Context where connectionParams live
+    if (ctx.connectionParams && ctx.connectionParams.session) {
+      const { session } = ctx.connectionParams;
+      return { session, prisma, pubsub };
+    }
+    // Otherwise let our resolvers know we don't have a current user
+    return { session: null, prisma, pubsub };
+  };
+
   // Save the returned server's info so we can shutdown this server later
-  const serverCleanup = useServer({ schema }, wsServer);
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: (ctx: SubscriptionContext) => {
+        // This will be run every time the client sends a subscription request
+        // Returning an object will add that information to our
+        // GraphQL context, which all of our resolvers have access to.
+        return getSubscriptionContext(ctx);
+      },
+    },
+    wsServer
+  );
   // Set up ApolloServer.
   const server = new ApolloServer({
     schema,
@@ -48,8 +77,6 @@ const main = async () => {
     cache: "bounded",
     context: async ({ req, res }): Promise<GraphQLContext> => {
       const session = await getSession({ req });
-      const prisma = new PrismaClient();
-      const pubsub = new PubSub();
 
       res.header("Access-Control-Allow-Origin", process.env.BASE_URL);
 
