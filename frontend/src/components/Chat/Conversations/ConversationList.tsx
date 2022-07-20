@@ -57,7 +57,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           <Avatar />
           <Flex justify="space-between" width="100%">
             <Flex direction="column">
-              <Text fontWeight={600}>Sunny</Text>
+              <Text fontWeight={600}>{conversation.id.slice(0, 8)}</Text>
               {conversation.latestMessage && (
                 <Text color="whiteAlpha.700">
                   {conversation.latestMessage.body}
@@ -65,7 +65,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               )}
             </Flex>
             <Text color="whiteAlpha.700">
-              {moment(Date.now()).format("LT")}
+              {moment(conversation.updatedAt).format("LT")}
             </Text>
           </Flex>
         </Stack>

@@ -5,6 +5,7 @@ const typeDefs = gql`
     id: String
     latestMessage: Message
     participants: [Participants]
+    updatedAt: Date
   }
 
   type Participants {
@@ -26,6 +27,10 @@ const typeDefs = gql`
 
   type Mutation {
     createConversation(participantIds: [String]): Boolean
+  }
+
+  type Subscription {
+    conversationCreated: Conversation
   }
 `;
 

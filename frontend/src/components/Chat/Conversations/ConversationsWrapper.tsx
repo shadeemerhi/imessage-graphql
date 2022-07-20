@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Stack } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import ConversationOperations, {
   ConversationsData,
@@ -23,6 +23,37 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
   >(ConversationOperations.Queries.conversations);
 
   console.log("HERE IS CONVERSATION DATA", data, loading, error);
+
+  const subscribeToNewConversations = () => {
+    subscribeToMore({
+      document: ConversationOperations.Subscriptions.conversationCreated,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+
+        /**
+         * @todo
+         * address TS issue below
+         */
+        // @ts-ignore
+        const newConversation = subscriptionData.data.conversationCreated;
+
+        console.log("SUB DATA", subscriptionData);
+
+        console.log("PREV CONVERSATIONS", prev);
+
+        return Object.assign({}, prev, {
+          conversations: [newConversation, ...prev.conversations],
+        });
+      },
+    });
+  };
+
+  /**
+   * Execute subscription on mount
+   */
+  useEffect(() => {
+    subscribeToNewConversations();
+  }, []);
 
   if (error) {
     toast.error("There was an error fetching conversations");

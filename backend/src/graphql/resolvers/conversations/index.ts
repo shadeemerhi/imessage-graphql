@@ -5,6 +5,13 @@ import {
 } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
+import { PubSub } from "graphql-subscriptions";
+
+/**
+ * @todo
+ * Add to context
+ */
+const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -14,6 +21,8 @@ const resolvers = {
       context: GraphQLContext
     ): Promise<Array<ConversationFE>> {
       const { session, prisma } = context;
+
+      console.log("HERE IS SESSION", session);
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
@@ -58,9 +67,15 @@ const resolvers = {
       args: { participantIds: Array<string> },
       context: GraphQLContext
     ): Promise<boolean> {
-      const { prisma } = context;
+      const { session, prisma } = context;
       const { participantIds } = args;
       console.log("PARTICIPANT IDS", participantIds);
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      const { id } = session.user;
 
       try {
         /**
@@ -71,13 +86,20 @@ const resolvers = {
             latestMessageId: "",
             participants: {
               createMany: {
-                data: participantIds.map((id) => ({ userId: id })),
+                data: [id, ...participantIds].map((id) => ({ userId: id })),
               },
             },
+          },
+          include: {
+            participants: true,
           },
         });
 
         console.log("HERE IS CONVERSATION", conversation);
+
+        pubsub.publish("CONVERSATION_CREATED", {
+          conversationCreated: conversation,
+        });
 
         return true;
       } catch (error) {
@@ -89,6 +111,14 @@ const resolvers = {
        * use conversation.id along with args
        * to create ConversationParticipants
        */
+    },
+  },
+  Subscription: {
+    conversationCreated: {
+      subscribe: () => {
+        console.log("SUBSCRIPTION RAN");
+        return pubsub.asyncIterator(["CONVERSATION_CREATED"]);
+      },
     },
   },
 };

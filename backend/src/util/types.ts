@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { PubSub } from "graphql-subscriptions";
 
 export interface User {
   id: string;
@@ -12,4 +13,5 @@ export interface Session {
 export interface GraphQLContext {
   session: Session | null;
   prisma: PrismaClient;
+  pubsub: PubSub;
 }
