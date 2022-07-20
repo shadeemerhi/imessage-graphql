@@ -5,7 +5,7 @@ import {
 } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
-import { PubSub } from "graphql-subscriptions";
+import { PubSub, withFilter } from "graphql-subscriptions";
 
 /**
  * @todo
@@ -115,10 +115,36 @@ const resolvers = {
   },
   Subscription: {
     conversationCreated: {
-      subscribe: () => {
-        console.log("SUBSCRIPTION RAN");
-        return pubsub.asyncIterator(["CONVERSATION_CREATED"]);
-      },
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+
+        /**
+         * @todo
+         * Create payload type
+         */
+        (payload: any, _, context: GraphQLContext) => {
+          const { session } = context;
+          console.log("DOES THIS WORK", session?.user);
+          console.log("HERE IS PAYLOAD", payload);
+
+          if (!session?.user) {
+            throw new ApolloError("Not authorized");
+          }
+
+          const { id } = session.user;
+
+          /**
+           * @todo
+           * Test by creating another user who's not in conversation
+           */
+          const userIsParticipant =
+            !!payload.conversationCreated.participants.find(
+              (p: ConversationParticipants) => p.userId === id
+            );
+
+          return userIsParticipant;
+        }
+      ),
     },
   },
 };
@@ -127,5 +153,4 @@ interface ConversationFE extends Conversation {
   participants: ConversationParticipants[];
   latestMessage?: Message;
 }
-
 export default resolvers;
