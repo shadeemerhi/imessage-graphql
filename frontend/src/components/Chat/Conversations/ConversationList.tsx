@@ -58,9 +58,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
           <Flex justify="space-between" width="100%">
             <Flex direction="column">
               <Text fontWeight={600}>Sunny</Text>
-              <Text color="whiteAlpha.700">
-                {conversation.latestMessage.body}
-              </Text>
+              {conversation.latestMessage && (
+                <Text color="whiteAlpha.700">
+                  {conversation.latestMessage.body}
+                </Text>
+              )}
             </Flex>
             <Text color="whiteAlpha.700">
               {moment(Date.now()).format("LT")}

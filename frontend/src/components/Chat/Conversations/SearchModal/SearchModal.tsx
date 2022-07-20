@@ -1,4 +1,4 @@
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Button,
   Input,
@@ -17,6 +17,7 @@ import UserOperations, {
   UserSearchData,
   UserSearchInput,
 } from "../../../../graphql/operations/users";
+import ConversationOperations from "../../../../graphql/operations/conversations";
 import Participants from "./Participants";
 import UserList from "./UserList";
 
@@ -34,10 +35,35 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
     UserSearchInput
   >(UserOperations.Queries.searchUsers);
 
-  if (error) {
-    toast.error("Error searching for users");
-    return null;
-  }
+  const [
+    createConversation,
+    {
+      data: createConversationData,
+      loading: createConversationLoading,
+      error: createConversationError,
+    },
+  ] = useMutation<boolean, { participantIds: Array<string> }>(
+    ConversationOperations.Mutations.createConversation
+  );
+
+  const onCreateConversation = async () => {
+    if (!participants.length) return;
+
+    const participantIds = participants.map((p) => p.id);
+    console.log("IDS", participantIds);
+
+    try {
+      const { data } = await createConversation({
+        variables: {
+          participantIds,
+        },
+      });
+      console.log("CREATE CONVERSATION DATA", data);
+    } catch (error) {
+      console.log("createConversations error", error);
+      toast.error("Error creating conversation");
+    }
+  };
 
   const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -51,6 +77,11 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
   const removeParticipant = (userId: string) => {
     setParticipants((prev) => prev.filter((u) => u.id !== userId));
   };
+
+  if (error) {
+    toast.error("Error searching for users");
+    return null;
+  }
 
   return (
     <>
@@ -87,6 +118,7 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
               <Participants
                 participants={participants}
                 removeParticipant={removeParticipant}
+                onCreateConversation={onCreateConversation}
               />
             )}
           </ModalBody>

@@ -25,31 +25,77 @@ const resolvers = {
          * Find all conversations that user is part of
          */
         const conversations = await prisma.conversation.findMany({
-          where: {
-            participants: {
-              every: {
-                userId: id,
-              },
-            },
-          },
+          // where: {
+          //   participants: {
+          //     some: {
+          //       userId: {
+          //         equals: id,
+          //       },
+          //     },
+          //   },
+          // },
           include: {
             participants: true,
-            latestMessage: true,
           },
         });
 
-        return conversations;
+        /**
+         * Temporary until prisma filtering sorted out
+         */
+        return conversations.filter(
+          (conversation) =>
+            !!conversation.participants.find((p) => p.userId === id)
+        );
       } catch (error: any) {
         console.log("error", error);
         throw new ApolloError(error?.message);
       }
     },
   },
+  Mutation: {
+    createConversation: async function (
+      _: any,
+      args: { participantIds: Array<string> },
+      context: GraphQLContext
+    ): Promise<boolean> {
+      const { prisma } = context;
+      const { participantIds } = args;
+      console.log("PARTICIPANT IDS", participantIds);
+
+      try {
+        /**
+         * create Conversation entity
+         */
+        const conversation = await prisma.conversation.create({
+          data: {
+            latestMessageId: "",
+            participants: {
+              createMany: {
+                data: participantIds.map((id) => ({ userId: id })),
+              },
+            },
+          },
+        });
+
+        console.log("HERE IS CONVERSATION", conversation);
+
+        return true;
+      } catch (error) {
+        console.log("createConversation error", error);
+        return false;
+      }
+
+      /**
+       * use conversation.id along with args
+       * to create ConversationParticipants
+       */
+    },
+  },
 };
 
 interface ConversationFE extends Conversation {
   participants: ConversationParticipants[];
-  latestMessage: Message;
+  latestMessage?: Message;
 }
 
 export default resolvers;

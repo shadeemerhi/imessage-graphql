@@ -6,11 +6,13 @@ import { UserSearch } from "../../../../graphql/operations/users";
 interface ParticipantsProps {
   participants: Array<UserSearch>;
   removeParticipant: (userId: string) => void;
+  onCreateConversation: any;
 }
 
 const Participants: React.FC<ParticipantsProps> = ({
   participants,
   removeParticipant,
+  onCreateConversation,
 }) => {
   return (
     <Box mt={8}>
@@ -33,7 +35,13 @@ const Participants: React.FC<ParticipantsProps> = ({
           </Stack>
         ))}
       </Stack>
-      <Button bg="purple.600" _hover={{ bg: "purple.600" }} width="100%" mt={6}>
+      <Button
+        bg="purple.600"
+        _hover={{ bg: "purple.600" }}
+        width="100%"
+        mt={6}
+        onClick={onCreateConversation}
+      >
         Create Conversation
       </Button>
     </Box>

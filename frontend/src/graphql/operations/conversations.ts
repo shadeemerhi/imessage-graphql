@@ -5,6 +5,7 @@ export default {
     conversations: gql`
       query Conversations {
         conversations {
+          id
           participants {
             userId
           }
@@ -12,6 +13,13 @@ export default {
             body
           }
         }
+      }
+    `,
+  },
+  Mutations: {
+    createConversation: gql`
+      mutation CreateConversation($participantIds: [String]!) {
+        createConversation(participantIds: $participantIds)
       }
     `,
   },
@@ -30,7 +38,7 @@ interface Conversation {
 
 export interface ConversationFE extends Conversation {
   participants: ConversationParticipants[];
-  latestMessage: Message;
+  latestMessage: Message | null;
 }
 
 interface ConversationParticipants {

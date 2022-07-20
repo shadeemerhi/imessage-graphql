@@ -1,10 +1,6 @@
 import { gql } from "apollo-server-core";
 
 const typeDefs = gql`
-  type Query {
-    conversations: [Conversation]
-  }
-
   type Conversation {
     id: String
     latestMessage: Message
@@ -22,6 +18,14 @@ const typeDefs = gql`
     conversationId: String
     senderId: String
     body: String
+  }
+
+  type Query {
+    conversations: [Conversation]
+  }
+
+  type Mutation {
+    createConversation(participantIds: [String]): Boolean
   }
 `;
 

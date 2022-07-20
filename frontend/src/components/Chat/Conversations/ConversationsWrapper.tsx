@@ -17,9 +17,10 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
   convId,
   setConvId,
 }) => {
-  const { data, loading, error } = useQuery<ConversationsData, null>(
-    ConversationOperations.Queries.conversations
-  );
+  const { data, loading, error, subscribeToMore } = useQuery<
+    ConversationsData,
+    null
+  >(ConversationOperations.Queries.conversations);
 
   console.log("HERE IS CONVERSATION DATA", data, loading, error);
 
@@ -45,6 +46,11 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
         <ConversationList
           conversations={data?.conversations || []}
           setConvId={setConvId}
+          // subscribeToNewConversations={() =>
+          //     subscribeToMore({
+          //       document:
+          //     })
+          // }
         />
       )}
     </Stack>
