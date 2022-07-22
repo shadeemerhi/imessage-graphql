@@ -15,12 +15,14 @@ import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
   conversations: Array<ConversationFE>;
-  setConvId: React.Dispatch<React.SetStateAction<string>>;
+  selectedConversationId: string;
+  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
-  setConvId,
+  selectedConversationId,
+  setSelectedConversationId,
 }) => {
   const {
     isOpen: modalIsOpen,
@@ -33,6 +35,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <Box
         py={2}
         px={4}
+        mb={4}
         bg="blackAlpha.300"
         borderRadius={4}
         cursor="pointer"
@@ -45,7 +48,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <CreateConversationModal
         isOpen={modalIsOpen}
         onClose={onModalClose}
-        setConvId={setConvId}
+        setSelectedConversationId={setSelectedConversationId}
       />
       {conversations.map((conversation) => (
         <Stack
@@ -55,8 +58,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
           p={4}
           cursor="pointer"
           borderRadius={4}
+          bg={
+            conversation.id === selectedConversationId
+              ? "whiteAlpha.200"
+              : "none"
+          }
           _hover={{ bg: "whiteAlpha.200" }}
-          onClick={() => setConvId(conversation.id)}
+          onClick={() => setSelectedConversationId(conversation.id)}
         >
           <Avatar />
           <Flex justify="space-between" width="100%">

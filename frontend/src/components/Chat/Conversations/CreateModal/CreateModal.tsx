@@ -26,13 +26,13 @@ import UserList from "./UserList";
 interface CreateConversationModal {
   isOpen: boolean;
   onClose: () => void;
-  setConvId: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const CreateConversationModal: React.FC<CreateConversationModal> = ({
   isOpen,
   onClose,
-  setConvId,
+  setSelectedConversationId,
 }) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<UserSearch>>([]);
@@ -65,8 +65,6 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
         },
       });
 
-      console.log("CREATE CONVERSATION DATA", data);
-
       if (!data?.createConversation || errors) {
         throw new Error("Error creating conversation");
       }
@@ -75,7 +73,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
         createConversation: { conversationId },
       } = data;
 
-      setConvId(conversationId);
+      setSelectedConversationId(conversationId);
 
       /**
        * Close modal on successful creation

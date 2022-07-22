@@ -10,13 +10,13 @@ import ConversationList from "./ConversationList";
 import ConversationLoader from "./Loader";
 
 interface ConversationsProps {
-  convId: string;
-  setConvId: React.Dispatch<React.SetStateAction<string>>;
+  selectedConversationId: string;
+  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ConversationsWrapper: React.FC<ConversationsProps> = ({
-  convId,
-  setConvId,
+  selectedConversationId,
+  setSelectedConversationId,
 }) => {
   const { data, loading, error, subscribeToMore } = useQuery<
     ConversationsData,
@@ -58,7 +58,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
   return (
     <Stack
       direction="column"
-      display={{ base: convId ? "none" : "flex", md: "flex" }}
+      display={{ base: selectedConversationId ? "none" : "flex", md: "flex" }}
       width={{ base: "100%", md: "30%" }}
       maxWidth={{ base: "none", md: "360px" }}
       bg="whiteAlpha.50"
@@ -71,7 +71,8 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
       ) : (
         <ConversationList
           conversations={data?.conversations || []}
-          setConvId={setConvId}
+          selectedConversationId={selectedConversationId}
+          setSelectedConversationId={setSelectedConversationId}
         />
       )}
     </Stack>

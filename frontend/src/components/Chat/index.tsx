@@ -6,11 +6,17 @@ import Feed from "./Feed/Feed";
 interface ChatProps {}
 
 const Chat: React.FC<ChatProps> = () => {
-  const [convId, setConvId] = useState("");
+  const [selectedConversationId, setSelectedConversationId] = useState("");
   return (
     <Flex height="100vh">
-      <ConversationsWrapper convId={convId} setConvId={setConvId} />
-      <Feed convId={convId} setConvId={setConvId} />
+      <ConversationsWrapper
+        selectedConversationId={selectedConversationId}
+        setSelectedConversationId={setSelectedConversationId}
+      />
+      <Feed
+        selectedConversationId={selectedConversationId}
+        setSelectedConversationId={setSelectedConversationId}
+      />
     </Flex>
   );
 };

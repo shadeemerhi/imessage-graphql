@@ -3,21 +3,24 @@ import React from "react";
 import MessageInput from "./Input";
 
 interface FeedProps {
-  convId: string;
-  setConvId: React.Dispatch<React.SetStateAction<string>>;
+  selectedConversationId: string;
+  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Feed: React.FC<FeedProps> = ({ convId, setConvId }) => {
+const Feed: React.FC<FeedProps> = ({
+  selectedConversationId,
+  setSelectedConversationId,
+}) => {
   return (
     <Flex
-      display={{ base: convId ? "flex" : "none", md: "flex" }}
+      display={{ base: selectedConversationId ? "flex" : "none", md: "flex" }}
       direction="column"
       justify="space-between"
       flexGrow={1}
     >
       <Button
         display={{ base: "unset", md: "none" }}
-        onClick={() => setConvId("")}
+        onClick={() => setSelectedConversationId("")}
       >
         Back
       </Button>
