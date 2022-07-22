@@ -10,8 +10,7 @@ const typeDefs = gql`
 
   type Participants {
     id: String
-    userId: String
-    conversationId: String
+    user: User
   }
 
   type Message {

@@ -8,8 +8,10 @@ export default {
           id
           updatedAt
           participants {
-            userId
-            # username
+            user {
+              id
+              username
+            }
           }
           latestMessage {
             body
@@ -34,8 +36,10 @@ export default {
           id
           updatedAt
           participants {
-            userId
-            # username
+            user {
+              id
+              username
+            }
           }
           latestMessage {
             body
@@ -61,14 +65,15 @@ interface Conversation {
 }
 
 export interface ConversationFE extends Conversation {
-  participants: ConversationParticipants[];
+  participants: Array<ConversationParticipant>;
   latestMessage: Message | null;
 }
 
-interface ConversationParticipants {
-  id: string;
-  userId: string;
-  conversationId: string;
+interface ConversationParticipant {
+  user: {
+    id: string;
+    username: string;
+  };
 }
 
 interface Message {

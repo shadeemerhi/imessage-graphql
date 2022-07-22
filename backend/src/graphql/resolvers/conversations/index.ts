@@ -1,8 +1,4 @@
-import {
-  Conversation,
-  ConversationParticipants,
-  Message,
-} from "@prisma/client";
+import { Conversation, Message } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
 import { PubSub, withFilter } from "graphql-subscriptions";
@@ -52,10 +48,24 @@ const resolvers = {
           //   },
           // },
           include: {
-            participants: true,
+            participants: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                  },
+                },
+              },
+            },
             latestMessage: true,
           },
         });
+
+        console.log(
+          "HERE IS CONVERSATION DATA",
+          conversations[0].participants[0]
+        );
 
         /**
          * Since above query does not work
@@ -98,7 +108,16 @@ const resolvers = {
             },
           },
           include: {
-            participants: true,
+            participants: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                  },
+                },
+              },
+            },
           },
         });
 
@@ -138,7 +157,7 @@ const resolvers = {
 
           const userIsParticipant =
             !!payload.conversationCreated.participants.find(
-              (p: ConversationParticipants) => p.userId === id
+              (p) => p.user.id === id
             );
 
           return userIsParticipant;
@@ -149,12 +168,19 @@ const resolvers = {
 };
 
 interface ConversationFE extends Conversation {
-  participants: Array<ConversationParticipants>;
+  participants: Array<ConversationParticipant>;
   latestMessage: Message | null;
 }
 
+interface ConversationParticipant {
+  user: {
+    id: string;
+    username: string;
+  };
+}
+
 interface NewConveration extends Conversation {
-  participants: Array<ConversationParticipants>;
+  participants: Array<ConversationParticipant>;
 }
 
 interface CreateConversationSubscriptionPayload {
