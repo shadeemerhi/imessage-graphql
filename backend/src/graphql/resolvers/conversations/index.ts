@@ -62,11 +62,6 @@ const resolvers = {
           },
         });
 
-        console.log(
-          "HERE IS CONVERSATION DATA",
-          conversations[0].participants[0]
-        );
-
         /**
          * Since above query does not work
          */
