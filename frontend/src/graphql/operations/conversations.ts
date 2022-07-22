@@ -9,6 +9,7 @@ export default {
           updatedAt
           participants {
             userId
+            # username
           }
           latestMessage {
             body
@@ -20,7 +21,9 @@ export default {
   Mutations: {
     createConversation: gql`
       mutation CreateConversation($participantIds: [String]!) {
-        createConversation(participantIds: $participantIds)
+        createConversation(participantIds: $participantIds) {
+          conversationId
+        }
       }
     `,
   },
@@ -29,8 +32,13 @@ export default {
       subscription ConversationCreated {
         conversationCreated {
           id
+          updatedAt
           participants {
             userId
+            # username
+          }
+          latestMessage {
+            body
           }
         }
       }
@@ -38,10 +46,13 @@ export default {
   },
 };
 
-export interface ConversationsData {
-  conversations: Array<ConversationFE>;
-}
+/**
+ * Interfaces
+ * @todo
+ * Consider moving to a different file
+ */
 
+// Entities
 interface Conversation {
   id: string;
   latestMessageId: string;
@@ -52,7 +63,6 @@ interface Conversation {
 export interface ConversationFE extends Conversation {
   participants: ConversationParticipants[];
   latestMessage: Message | null;
-  updatedAt: Date;
 }
 
 interface ConversationParticipants {
@@ -68,4 +78,23 @@ interface Message {
   body: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Operations
+export interface CreateConversationData {
+  createConversation: {
+    conversationId: string;
+  };
+}
+
+export interface ConversationsData {
+  conversations: Array<ConversationFE>;
+}
+
+export interface ConversationSubscriptionData {
+  subscriptionData: {
+    data: {
+      conversationCreated: ConversationFE;
+    };
+  };
 }

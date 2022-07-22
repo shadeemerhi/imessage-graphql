@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import ConversationOperations, {
   ConversationsData,
+  ConversationSubscriptionData,
 } from "../../../graphql/operations/conversations";
 import ConversationList from "./ConversationList";
 import ConversationLoader from "./Loader";
@@ -27,19 +28,13 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
   const subscribeToNewConversations = () => {
     subscribeToMore({
       document: ConversationOperations.Subscriptions.conversationCreated,
-      updateQuery: (prev, { subscriptionData }) => {
+      updateQuery: (
+        prev,
+        { subscriptionData }: ConversationSubscriptionData
+      ) => {
         if (!subscriptionData.data) return prev;
 
-        /**
-         * @todo
-         * address TS issue below
-         */
-        // @ts-ignore
         const newConversation = subscriptionData.data.conversationCreated;
-
-        console.log("SUB DATA", subscriptionData);
-
-        console.log("PREV CONVERSATIONS", prev);
 
         return Object.assign({}, prev, {
           conversations: [newConversation, ...prev.conversations],
@@ -77,11 +72,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
         <ConversationList
           conversations={data?.conversations || []}
           setConvId={setConvId}
-          // subscribeToNewConversations={() =>
-          //     subscribeToMore({
-          //       document:
-          //     })
-          // }
         />
       )}
     </Stack>

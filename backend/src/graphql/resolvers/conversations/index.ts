@@ -10,6 +10,8 @@ import { PubSub, withFilter } from "graphql-subscriptions";
 /**
  * @todo
  * Add to context
+ * Currently unsure of how to access
+ * context pubsub in withFilter
  */
 const pubsub = new PubSub();
 
@@ -34,6 +36,12 @@ const resolvers = {
          * Find all conversations that user is part of
          */
         const conversations = await prisma.conversation.findMany({
+          /**
+           * Below has been confirmed to be the correct
+           * query by the Prisma team. Has been confirmed
+           * that there is an issue on their end
+           * Issue seems specific to Mongo
+           */
           // where: {
           //   participants: {
           //     some: {
@@ -45,11 +53,12 @@ const resolvers = {
           // },
           include: {
             participants: true,
+            latestMessage: true,
           },
         });
 
         /**
-         * Temporary until prisma filtering sorted out
+         * Since above query does not work
          */
         return conversations.filter(
           (conversation) =>
@@ -66,10 +75,9 @@ const resolvers = {
       _: any,
       args: { participantIds: Array<string> },
       context: GraphQLContext
-    ): Promise<boolean> {
+    ): Promise<{ conversationId: string }> {
       const { session, prisma } = context;
       const { participantIds } = args;
-      console.log("PARTICIPANT IDS", participantIds);
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
@@ -83,7 +91,6 @@ const resolvers = {
          */
         const conversation = await prisma.conversation.create({
           data: {
-            latestMessageId: "",
             participants: {
               createMany: {
                 data: [id, ...participantIds].map((id) => ({ userId: id })),
@@ -101,31 +108,27 @@ const resolvers = {
           conversationCreated: conversation,
         });
 
-        return true;
+        return { conversationId: conversation.id };
       } catch (error) {
         console.log("createConversation error", error);
-        return false;
+        throw new ApolloError("Error creating conversation");
       }
-
-      /**
-       * use conversation.id along with args
-       * to create ConversationParticipants
-       */
     },
   },
   Subscription: {
     conversationCreated: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator(["CONVERSATION_CREATED"]),
-
         /**
          * @todo
-         * Create payload type
+         * Not sure how to access context pubsub here
          */
-        (payload: any, _, context: GraphQLContext) => {
+        () => pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+        (
+          payload: CreateConversationSubscriptionPayload,
+          _,
+          context: GraphQLContext
+        ) => {
           const { session } = context;
-          console.log("DOES THIS WORK", session?.user);
-          console.log("HERE IS PAYLOAD", payload);
 
           if (!session?.user) {
             throw new ApolloError("Not authorized");
@@ -133,10 +136,6 @@ const resolvers = {
 
           const { id } = session.user;
 
-          /**
-           * @todo
-           * Test by creating another user who's not in conversation
-           */
           const userIsParticipant =
             !!payload.conversationCreated.participants.find(
               (p: ConversationParticipants) => p.userId === id
@@ -150,7 +149,16 @@ const resolvers = {
 };
 
 interface ConversationFE extends Conversation {
-  participants: ConversationParticipants[];
-  latestMessage?: Message;
+  participants: Array<ConversationParticipants>;
+  latestMessage: Message | null;
 }
+
+interface NewConveration extends Conversation {
+  participants: Array<ConversationParticipants>;
+}
+
+interface CreateConversationSubscriptionPayload {
+  conversationCreated: NewConveration;
+}
+
 export default resolvers;

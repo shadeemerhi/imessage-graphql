@@ -17,51 +17,73 @@ import UserOperations, {
   UserSearchData,
   UserSearchInput,
 } from "../../../../graphql/operations/users";
-import ConversationOperations from "../../../../graphql/operations/conversations";
+import ConversationOperations, {
+  CreateConversationData,
+} from "../../../../graphql/operations/conversations";
 import Participants from "./Participants";
 import UserList from "./UserList";
 
-interface SearchModal {
+interface CreateConversationModal {
   isOpen: boolean;
   onClose: () => void;
+  setConvId: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
+const CreateConversationModal: React.FC<CreateConversationModal> = ({
+  isOpen,
+  onClose,
+  setConvId,
+}) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<UserSearch>>([]);
 
-  const [searchUsers, { data, loading, error }] = useLazyQuery<
-    UserSearchData,
-    UserSearchInput
-  >(UserOperations.Queries.searchUsers);
-
   const [
-    createConversation,
+    searchUsers,
     {
-      data: createConversationData,
-      loading: createConversationLoading,
-      error: createConversationError,
+      data: searchUsersData,
+      loading: searchUsersLoading,
+      error: searchUsersError,
     },
-  ] = useMutation<boolean, { participantIds: Array<string> }>(
-    ConversationOperations.Mutations.createConversation
+  ] = useLazyQuery<UserSearchData, UserSearchInput>(
+    UserOperations.Queries.searchUsers
   );
+
+  const [createConversation, { loading: createConversationLoading }] =
+    useMutation<CreateConversationData, { participantIds: Array<string> }>(
+      ConversationOperations.Mutations.createConversation
+    );
 
   const onCreateConversation = async () => {
     if (!participants.length) return;
 
     const participantIds = participants.map((p) => p.id);
-    console.log("IDS", participantIds);
 
     try {
-      const { data } = await createConversation({
+      const { data, errors } = await createConversation({
         variables: {
           participantIds,
         },
       });
+
       console.log("CREATE CONVERSATION DATA", data);
-    } catch (error) {
+
+      if (!data?.createConversation || errors) {
+        throw new Error("Error creating conversation");
+      }
+
+      const {
+        createConversation: { conversationId },
+      } = data;
+
+      setConvId(conversationId);
+
+      /**
+       * Close modal on successful creation
+       */
+      onClose();
+    } catch (error: any) {
       console.log("createConversations error", error);
-      toast.error("Error creating conversation");
+      toast.error(error?.message);
     }
   };
 
@@ -78,7 +100,7 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
     setParticipants((prev) => prev.filter((u) => u.id !== userId));
   };
 
-  if (error) {
+  if (searchUsersError) {
     toast.error("Error searching for users");
     return null;
   }
@@ -100,26 +122,37 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
                 <Button
                   width="100%"
                   type="submit"
-                  isLoading={loading}
+                  isLoading={searchUsersLoading}
                   disabled={!username}
                 >
                   Search
                 </Button>
               </Stack>
             </form>
-            {data?.searchUsers && (
+            {searchUsersData?.searchUsers && (
               <UserList
-                users={data.searchUsers}
+                users={searchUsersData.searchUsers}
                 participants={participants}
                 addParticipant={addParticipant}
               />
             )}
             {participants.length !== 0 && (
-              <Participants
-                participants={participants}
-                removeParticipant={removeParticipant}
-                onCreateConversation={onCreateConversation}
-              />
+              <>
+                <Participants
+                  participants={participants}
+                  removeParticipant={removeParticipant}
+                />
+                <Button
+                  bg="purple.600"
+                  _hover={{ bg: "purple.600" }}
+                  width="100%"
+                  mt={6}
+                  isLoading={createConversationLoading}
+                  onClick={onCreateConversation}
+                >
+                  Create Conversation
+                </Button>
+              </>
             )}
           </ModalBody>
         </ModalContent>
@@ -127,4 +160,4 @@ const SearchModal: React.FC<SearchModal> = ({ isOpen, onClose }) => {
     </>
   );
 };
-export default SearchModal;
+export default CreateConversationModal;

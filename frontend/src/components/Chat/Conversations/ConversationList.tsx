@@ -11,7 +11,7 @@ import moment from "moment";
 import { signOut } from "next-auth/react";
 import React from "react";
 import { ConversationFE } from "../../../graphql/operations/conversations";
-import ConversationSearchModal from "./SearchModal/SearchModal";
+import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
   conversations: Array<ConversationFE>;
@@ -42,7 +42,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
           Find or start a conversation
         </Text>
       </Box>
-      <ConversationSearchModal isOpen={modalIsOpen} onClose={onModalClose} />
+      <CreateConversationModal
+        isOpen={modalIsOpen}
+        onClose={onModalClose}
+        setConvId={setConvId}
+      />
       {conversations.map((conversation) => (
         <Stack
           key={conversation.id}
