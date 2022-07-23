@@ -5,7 +5,7 @@ export default {
     messages: gql`
       query Messages($conversationId: String!) {
         messages(conversationId: $conversationId) {
-          user {
+          sender {
             username
           }
           body

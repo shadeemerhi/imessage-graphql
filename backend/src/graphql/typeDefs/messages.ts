@@ -2,7 +2,7 @@ import { gql } from "apollo-server-core";
 
 const typeDefs = gql`
   type Message {
-    user: User
+    sender: User
     body: String
     createdAt: Date
   }
