@@ -1,15 +1,18 @@
 import { Flex } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { Session } from "next-auth";
+import React from "react";
 import ConversationsWrapper from "./Conversations/ConversationsWrapper";
 import Feed from "./Feed/Feed";
 
-interface ChatProps {}
+interface ChatProps {
+  session: Session;
+}
 
-const Chat: React.FC<ChatProps> = () => {
+const Chat: React.FC<ChatProps> = ({ session }) => {
   return (
     <Flex height="100vh">
       <ConversationsWrapper />
-      <Feed />
+      <Feed session={session} />
     </Flex>
   );
 };

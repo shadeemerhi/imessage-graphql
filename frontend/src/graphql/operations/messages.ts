@@ -12,8 +12,18 @@ export default {
   },
   Mutations: {
     sendMessage: gql`
-            mutation SendMessage($conversationId: String!, $senderId: String!, $body: String!)
-        `,
+      mutation SendMessage(
+        $conversationId: String!
+        $senderId: String!
+        $body: String!
+      ) {
+        sendMessage(
+          conversationId: $conversationId
+          senderId: $senderId
+          body: $body
+        )
+      }
+    `,
   },
 };
 

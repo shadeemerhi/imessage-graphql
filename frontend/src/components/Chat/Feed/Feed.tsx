@@ -1,12 +1,15 @@
 import { Box, Button, Flex, Stack, Text } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React from "react";
 import MessageInput from "./Input";
 import NoConversation from "./NoConversation";
 
-interface FeedProps {}
+interface FeedProps {
+  session: Session;
+}
 
-const Feed: React.FC<FeedProps> = ({}) => {
+const Feed: React.FC<FeedProps> = ({ session }) => {
   const router = useRouter();
 
   const { conversationId } = router.query;
@@ -23,7 +26,7 @@ const Feed: React.FC<FeedProps> = ({}) => {
       direction="column"
       flexGrow={1}
     >
-      {conversationId ? (
+      {conversationId && typeof conversationId === "string" ? (
         <>
           <Flex direction="column" justify="space-between" height="88%">
             <Stack
@@ -46,6 +49,8 @@ const Feed: React.FC<FeedProps> = ({}) => {
               </Button>
               <Text>{conversationId}</Text>
             </Stack>
+
+            {/* MESSAGE FEED */}
             <Flex direction="column" justify="flex-end">
               <Box p={4} _hover={{ bg: "whiteAlpha.200" }}>
                 <Text>lmao dude</Text>
@@ -54,8 +59,9 @@ const Feed: React.FC<FeedProps> = ({}) => {
                 <Text>Hello how are you</Text>
               </Box>
             </Flex>
+            {/* MESSAGE FEED */}
           </Flex>
-          <MessageInput />
+          <MessageInput session={session} conversationId={conversationId} />
         </>
       ) : (
         <NoConversation />
