@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client";
+import { Message } from "./messages";
 
 export default {
   Queries: {
@@ -74,15 +75,6 @@ export interface ConversationParticipant {
     id: string;
     username: string;
   };
-}
-
-interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  body: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 // Operations
