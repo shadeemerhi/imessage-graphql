@@ -5,7 +5,15 @@ interface MessageInputProps {}
 
 const MessageInput: React.FC<MessageInputProps> = () => {
   return (
-    <Box px={4} py={8}>
+    <Box
+      px={4}
+      py={8}
+      border="1px solid blue"
+      width="100%"
+      flexGrow={1}
+      // position="absolute"
+      // bottom={0}
+    >
       <Input
         size="lg"
         placeholder="New message"
