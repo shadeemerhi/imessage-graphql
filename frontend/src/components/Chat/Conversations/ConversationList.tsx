@@ -19,14 +19,10 @@ import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
   conversations: Array<ConversationFE>;
-  selectedConversationId: string;
-  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
-  selectedConversationId,
-  setSelectedConversationId,
 }) => {
   const {
     isOpen: modalIsOpen,
@@ -35,6 +31,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
   } = useDisclosure();
 
   const router = useRouter();
+
+  const { conversationId } = router.query;
 
   const formatUsernames = (
     participants: Array<ConversationParticipant>
@@ -61,11 +59,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           Find or start a conversation
         </Text>
       </Box>
-      <CreateConversationModal
-        isOpen={modalIsOpen}
-        onClose={onModalClose}
-        setSelectedConversationId={setSelectedConversationId}
-      />
+      <CreateConversationModal isOpen={modalIsOpen} onClose={onModalClose} />
       {conversations.map((conversation) => (
         <Stack
           key={conversation.id}
@@ -74,16 +68,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
           p={4}
           cursor="pointer"
           borderRadius={4}
-          bg={
-            conversation.id === selectedConversationId
-              ? "whiteAlpha.200"
-              : "none"
-          }
+          bg={conversation.id === conversationId ? "whiteAlpha.200" : "none"}
           _hover={{ bg: "whiteAlpha.200" }}
           onClick={() =>
             router.push({ query: { conversationId: conversation.id } })
           }
-          // onClick={() => setSelectedConversationId(conversation.id)}
         >
           <Avatar />
           <Flex justify="space-between" width="80%">

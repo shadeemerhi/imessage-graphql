@@ -22,20 +22,20 @@ import ConversationOperations, {
 } from "../../../../graphql/operations/conversations";
 import Participants from "./Participants";
 import UserList from "./UserList";
+import { useRouter } from "next/router";
 
 interface CreateConversationModal {
   isOpen: boolean;
   onClose: () => void;
-  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const CreateConversationModal: React.FC<CreateConversationModal> = ({
   isOpen,
   onClose,
-  setSelectedConversationId,
 }) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<UserSearch>>([]);
+  const router = useRouter();
 
   const [
     searchUsers,
@@ -73,7 +73,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
         createConversation: { conversationId },
       } = data;
 
-      setSelectedConversationId(conversationId);
+      router.push({ query: { conversationId } });
 
       /**
        * Close modal on successful creation

@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Stack } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import ConversationOperations, {
@@ -9,15 +10,12 @@ import ConversationOperations, {
 import ConversationList from "./ConversationList";
 import ConversationLoader from "./Loader";
 
-interface ConversationsProps {
-  selectedConversationId: string;
-  setSelectedConversationId: React.Dispatch<React.SetStateAction<string>>;
-}
+interface ConversationsProps {}
 
-const ConversationsWrapper: React.FC<ConversationsProps> = ({
-  selectedConversationId,
-  setSelectedConversationId,
-}) => {
+const ConversationsWrapper: React.FC<ConversationsProps> = ({}) => {
+  const router = useRouter();
+  const { conversationId } = router.query;
+
   const { data, loading, error, subscribeToMore } = useQuery<
     ConversationsData,
     null
@@ -58,7 +56,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
   return (
     <Stack
       direction="column"
-      display={{ base: selectedConversationId ? "none" : "flex", md: "flex" }}
+      display={{ base: conversationId ? "none" : "flex", md: "flex" }}
       width={{ base: "100%", md: "30%" }}
       maxWidth={{ base: "none", md: "360px" }}
       bg="whiteAlpha.50"
@@ -69,11 +67,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({
       {loading ? (
         <ConversationLoader />
       ) : (
-        <ConversationList
-          conversations={data?.conversations || []}
-          selectedConversationId={selectedConversationId}
-          setSelectedConversationId={setSelectedConversationId}
-        />
+        <ConversationList conversations={data?.conversations || []} />
       )}
     </Stack>
   );
