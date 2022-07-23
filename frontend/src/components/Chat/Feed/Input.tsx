@@ -19,11 +19,23 @@ const MessageInput: React.FC<MessageInputProps> = ({
 }) => {
   const [messageBody, setMessageBody] = useState("");
 
-  const [sendMessage] = useMutation<boolean, SendMessageVariables>(
-    MessageOperations.Mutations.sendMessage
-  );
+  const [sendMessage] = useMutation<
+    { sendMessage: boolean },
+    SendMessageVariables
+  >(MessageOperations.Mutations.sendMessage);
 
-  const onSendMessage = async () => {
+  const onSendMessage = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!messageBody) {
+      return;
+    }
+
+    /**
+     * Optimistically update UI
+     */
+    setMessageBody("");
+
     try {
       const { id: senderId } = session.user;
       const { data, errors } = await sendMessage({
@@ -34,7 +46,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
         },
       });
 
-      if (!data || errors) {
+      if (!data?.sendMessage || errors) {
         throw new Error("Error sending message");
       }
     } catch (error: any) {

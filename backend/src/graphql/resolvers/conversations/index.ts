@@ -20,8 +20,6 @@ const resolvers = {
     ): Promise<Array<ConversationFE>> {
       const { session, prisma } = context;
 
-      console.log("HERE IS SESSION", session);
-
       if (!session?.user) {
         throw new ApolloError("Not authorized");
       }

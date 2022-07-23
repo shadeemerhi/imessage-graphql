@@ -15,30 +15,46 @@ const resolvers = {
       _: any,
       args: SendMessageArguments,
       context: GraphQLContext
-    ) {
+    ): Promise<boolean> {
       const { session, pubsub, prisma } = context;
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
       }
 
-      const { conversationId, senderId, body } = args;
+      const { senderId, conversationId, body } = args;
 
-      /**
-       * @todo
-       * Create message entity using conversationId
-       */
+      try {
+        /**
+         * Create new message entity
+         */
+        const newMessage = await prisma.message.create({
+          data: {
+            senderId,
+            conversationId,
+            body,
+          },
+        });
 
-      /**
-       * @todo
-       * Update conversations latestMessageId using
-       * conversationId and messageId from above
-       */
+        /**
+         * Update conversation latestMessageId
+         */
+        await prisma.conversation.update({
+          where: {
+            id: conversationId,
+          },
+          data: {
+            latestMessageId: newMessage.id,
+          },
+        });
 
-      /**
-       * @todo
-       * Publish MESSAGE_SENT event
-       */
+        pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
+
+        return true;
+      } catch (error) {
+        console.log("sendMessage error", error);
+        throw new ApolloError("Error sending message");
+      }
     },
   },
 };
