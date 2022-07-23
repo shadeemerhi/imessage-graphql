@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import moment from "moment";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/router";
 import React from "react";
 import {
   ConversationFE,
@@ -32,6 +33,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
+
+  const router = useRouter();
 
   const formatUsernames = (
     participants: Array<ConversationParticipant>
@@ -77,7 +80,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
               : "none"
           }
           _hover={{ bg: "whiteAlpha.200" }}
-          onClick={() => setSelectedConversationId(conversation.id)}
+          onClick={() =>
+            router.push({ query: { conversationId: conversation.id } })
+          }
+          // onClick={() => setSelectedConversationId(conversation.id)}
         >
           <Avatar />
           <Flex justify="space-between" width="80%">
