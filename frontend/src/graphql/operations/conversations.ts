@@ -69,7 +69,7 @@ export interface ConversationFE extends Conversation {
   latestMessage: Message | null;
 }
 
-interface ConversationParticipant {
+export interface ConversationParticipant {
   user: {
     id: string;
     username: string;

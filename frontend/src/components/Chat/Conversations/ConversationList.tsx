@@ -10,7 +10,10 @@ import {
 import moment from "moment";
 import { signOut } from "next-auth/react";
 import React from "react";
-import { ConversationFE } from "../../../graphql/operations/conversations";
+import {
+  ConversationFE,
+  ConversationParticipant,
+} from "../../../graphql/operations/conversations";
 import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
@@ -29,6 +32,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
+
+  const formatUsernames = (
+    participants: Array<ConversationParticipant>
+  ): string => {
+    const usernames = participants.map(
+      (participant) => participant.user.username
+    );
+
+    return usernames.join(", ");
+  };
 
   return (
     <>
@@ -67,9 +80,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
           onClick={() => setSelectedConversationId(conversation.id)}
         >
           <Avatar />
-          <Flex justify="space-between" width="100%">
-            <Flex direction="column">
-              <Text fontWeight={600}>{conversation.id.slice(0, 8)}</Text>
+          <Flex justify="space-between" width="80%">
+            <Flex direction="column" width="70%">
+              <Text
+                fontWeight={600}
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+              >
+                {formatUsernames(conversation.participants)}
+              </Text>
               {conversation.latestMessage && (
                 <Text color="whiteAlpha.700">
                   {conversation.latestMessage.body}

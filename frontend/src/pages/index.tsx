@@ -5,8 +5,7 @@ import Auth from "../components/Auth/Auth";
 import Chat from "../components/Chat";
 
 const Home: NextPage = () => {
-  const { data: session, status } = useSession();
-  console.log("HERE IS SESSION", session, status);
+  const { data: session } = useSession();
 
   const reloadSession = () => {
     const event = new Event("visibilitychange");
