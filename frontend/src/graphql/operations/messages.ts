@@ -4,9 +4,13 @@ export default {
   Query: {
     messages: gql`
       query Messages($conversationId: String!) {
-        senderId
-        body
-        createdAt
+        messages(conversationId: $conversationId) {
+          user {
+            username
+          }
+          body
+          createdAt
+        }
       }
     `,
   },
@@ -41,7 +45,7 @@ export interface Message {
   updatedAt: Date;
 }
 
-export interface MessageFE {
+export interface MessageFE extends Message {
   body: string;
   sender: {
     username: string;

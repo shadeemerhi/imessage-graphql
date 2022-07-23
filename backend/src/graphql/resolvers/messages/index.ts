@@ -8,7 +8,36 @@ const resolvers = {
       _: any,
       args: { conversationId: string },
       context: GraphQLContext
-    ) {},
+    ): Promise<Array<MessageFE>> {
+      const { session, prisma } = context;
+      const { conversationId } = args;
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      try {
+        const messages = await prisma.message.findMany({
+          where: {
+            conversationId,
+          },
+          include: {
+            sender: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        });
+
+        console.log("HERE ARE MESSAGES", messages);
+
+        return messages;
+      } catch (error: any) {
+        console.log("messages error", error);
+        throw new ApolloError(error?.message);
+      }
+    },
   },
   Mutation: {
     sendMessage: async function (
@@ -58,6 +87,12 @@ const resolvers = {
     },
   },
 };
+
+interface MessageFE extends Message {
+  sender: {
+    username: string;
+  };
+}
 
 type SendMessageArguments = Pick<
   Message,

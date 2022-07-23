@@ -114,8 +114,6 @@ const resolvers = {
           },
         });
 
-        console.log("HERE IS CONVERSATION", conversation);
-
         pubsub.publish("CONVERSATION_CREATED", {
           conversationCreated: conversation,
         });

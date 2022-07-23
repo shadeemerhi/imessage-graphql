@@ -11,9 +11,14 @@ interface MessagesProps {
   conversationId: string;
 }
 
-const Messages: React.FC<MessagesProps> = () => {
+const Messages: React.FC<MessagesProps> = ({ conversationId }) => {
   const { data, loading, error } = useQuery<MessagesData, MessagesVariables>(
-    MessageOperations.Query.messages
+    MessageOperations.Query.messages,
+    {
+      variables: {
+        conversationId,
+      },
+    }
   );
 
   console.log("MESSAGES DATA", data, loading, error);

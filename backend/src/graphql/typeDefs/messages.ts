@@ -1,14 +1,14 @@
 import { gql } from "apollo-server-core";
 
 const typeDefs = gql`
-  type MessagesResponse {
-    senderId: String
+  type Message {
+    user: User
     body: String
-    createdAt: String
+    createdAt: Date
   }
 
   type Query {
-    messages(conversationId: String): MessagesResponse
+    messages(conversationId: String): [Message]
   }
 
   type Mutation {
