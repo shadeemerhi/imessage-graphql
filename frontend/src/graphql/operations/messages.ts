@@ -41,7 +41,23 @@ export interface Message {
   updatedAt: Date;
 }
 
+export interface MessageFE {
+  body: string;
+  sender: {
+    username: string;
+  };
+  createdAt: Date;
+}
+
 // Operations
+export interface MessagesData {
+  messages: Array<MessageFE>;
+}
+
+export interface MessagesVariables {
+  conversationId: string;
+}
+
 export type SendMessageVariables = Pick<
   Message,
   "conversationId" | "senderId" | "body"

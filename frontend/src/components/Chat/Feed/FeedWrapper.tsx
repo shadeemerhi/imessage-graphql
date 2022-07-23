@@ -3,13 +3,14 @@ import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React from "react";
 import MessageInput from "./Input";
+import Messages from "./Messages/Messages";
 import NoConversation from "./NoConversation";
 
-interface FeedProps {
+interface FeedWrapperProps {
   session: Session;
 }
 
-const Feed: React.FC<FeedProps> = ({ session }) => {
+const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
   const router = useRouter();
 
   const { conversationId } = router.query;
@@ -49,17 +50,7 @@ const Feed: React.FC<FeedProps> = ({ session }) => {
               </Button>
               <Text>{conversationId}</Text>
             </Stack>
-
-            {/* MESSAGE FEED */}
-            <Flex direction="column" justify="flex-end">
-              <Box p={4} _hover={{ bg: "whiteAlpha.200" }}>
-                <Text>lmao dude</Text>
-              </Box>
-              <Box p={4} _hover={{ bg: "whiteAlpha.200" }}>
-                <Text>Hello how are you</Text>
-              </Box>
-            </Flex>
-            {/* MESSAGE FEED */}
+            <Messages conversationId={conversationId} />
           </Flex>
           <MessageInput session={session} conversationId={conversationId} />
         </>
@@ -69,4 +60,4 @@ const Feed: React.FC<FeedProps> = ({ session }) => {
     </Flex>
   );
 };
-export default Feed;
+export default FeedWrapper;
