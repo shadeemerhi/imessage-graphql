@@ -8,6 +8,7 @@ import MessageOperations, {
   MessagesSubscriptionData,
   MessagesVariables,
 } from "../../../../graphql/operations/messages";
+import MessageItem from "./MessageItem";
 
 interface MessagesProps {
   userId: string;
@@ -32,8 +33,6 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
       },
       updateQuery: (prev, { subscriptionData }: MessagesSubscriptionData) => {
         if (!subscriptionData.data) return prev;
-
-        console.log("SUBSCRIPTION DATA", subscriptionData, userId);
 
         const newMessage = subscriptionData.data.messageSent;
 
@@ -75,35 +74,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
       {data?.messages && (
         <Flex direction="column-reverse" overflow="scroll" height="100%">
           {data.messages.map((message) => (
-            <Stack
-              key={message.id}
-              direction="row"
-              p={4}
-              spacing={4}
-              _hover={{ bg: "whiteAlpha.200" }}
-            >
-              <Avatar />
-              <Stack>
-                <Stack direction="row" align="center" spacing={4}>
-                  <Text fontWeight={600}>{message.sender.username}</Text>
-                  <Text fontSize={14} color="whiteAlpha.700">
-                    {moment(message.createdAt).format("LT")}
-                    {/* DATE NOT WORKING PROPERLY */}
-                    {/* {moment().calendar(message.createdAt, {
-                      sameDay: `[Today at] ${moment(message.createdAt).format(
-                        "LT"
-                      )}`,
-                      nextDay: "[Tomorrow]",
-                      nextWeek: "dddd",
-                      lastDay: "[Yesterday at]",
-                      lastWeek: "[Last] dddd",
-                      sameElse: "DD/MM/YYYY",
-                    })} */}
-                  </Text>
-                </Stack>
-                <Text>{message.body}</Text>
-              </Stack>
-            </Stack>
+            <MessageItem message={message} />
           ))}
         </Flex>
       )}
