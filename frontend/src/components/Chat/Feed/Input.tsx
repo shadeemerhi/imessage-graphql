@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import MessageOperations, {
   SendMessageVariables,
 } from "../../../graphql/operations/messages";
+import { ObjectID } from "bson";
 
 interface MessageInputProps {
   session: Session;
@@ -38,11 +39,47 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
     try {
       const { id: senderId } = session.user;
+      const newId = new ObjectID().toString();
+      const newMessage: SendMessageVariables = {
+        id: newId,
+        senderId,
+        conversationId,
+        body: messageBody,
+      };
       const { data, errors } = await sendMessage({
         variables: {
-          senderId,
-          conversationId,
-          body: messageBody,
+          ...newMessage,
+        },
+        optimisticResponse: {
+          sendMessage: true,
+        },
+        update: (proxy) => {
+          const existing = proxy.readQuery({
+            query: MessageOperations.Query.messages,
+            variables: { conversationId },
+          });
+
+          proxy.writeQuery({
+            query: MessageOperations.Query.messages,
+            variables: { conversationId },
+            data: {
+              // @ts-ignore
+              ...existing,
+              messages: [
+                {
+                  id: newId,
+                  body: messageBody,
+                  createdAt: Date.now(),
+                  sender: {
+                    id: session.user.id,
+                    username: session.user.username,
+                  },
+                },
+                // @ts-ignore
+                ...existing.messages,
+              ],
+            },
+          });
         },
       });
 

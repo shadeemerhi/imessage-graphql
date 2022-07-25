@@ -34,7 +34,8 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
               direction="row"
               align="center"
               spacing={6}
-              p={4}
+              py={5}
+              px={{ base: 4, md: 0 }}
               borderBottom="1px solid"
               borderColor="whiteAlpha.200"
             >
@@ -50,7 +51,10 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
               </Button>
               <Text>{conversationId}</Text>
             </Stack>
-            <Messages conversationId={conversationId} />
+            <Messages
+              userId={session.user.id}
+              conversationId={conversationId}
+            />
           </Flex>
           <MessageInput session={session} conversationId={conversationId} />
         </>

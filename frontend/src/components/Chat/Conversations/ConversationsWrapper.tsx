@@ -21,8 +21,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({}) => {
     null
   >(ConversationOperations.Queries.conversations);
 
-  console.log("HERE IS CONVERSATION DATA", data, loading, error);
-
   const subscribeToNewConversations = () => {
     subscribeToMore({
       document: ConversationOperations.Subscriptions.conversationCreated,

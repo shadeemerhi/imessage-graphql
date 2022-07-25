@@ -1,4 +1,3 @@
-import { Message } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { GraphQLContext } from "../../../util/types";
 
@@ -24,13 +23,15 @@ const resolvers = {
           include: {
             sender: {
               select: {
+                id: true,
                 username: true,
               },
             },
           },
+          orderBy: {
+            createdAt: "desc",
+          },
         });
-
-        console.log("HERE ARE MESSAGES", messages);
 
         return messages;
       } catch (error: any) {
@@ -45,13 +46,13 @@ const resolvers = {
       args: SendMessageArguments,
       context: GraphQLContext
     ): Promise<boolean> {
-      const { session, pubsub, prisma } = context;
+      const { session, prisma, pubsub } = context;
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
       }
 
-      const { senderId, conversationId, body } = args;
+      const { id, senderId, conversationId, body } = args;
 
       try {
         /**
@@ -59,9 +60,18 @@ const resolvers = {
          */
         const newMessage = await prisma.message.create({
           data: {
+            id,
             senderId,
             conversationId,
             body,
+          },
+          include: {
+            sender: {
+              select: {
+                id: true,
+                username: true,
+              },
+            },
           },
         });
 
@@ -86,17 +96,31 @@ const resolvers = {
       }
     },
   },
+  Subscription: {
+    messageSent: {
+      subscribe: (_: any, __: any, context: GraphQLContext) => {
+        const { pubsub } = context;
+        return pubsub.asyncIterator(["MESSAGE_SENT"]);
+      },
+    },
+  },
 };
 
-interface MessageFE extends Message {
+interface MessageFE {
+  id: string;
+  body: string;
   sender: {
+    id: string;
     username: string;
   };
+  createdAt: Date;
 }
 
-type SendMessageArguments = Pick<
-  Message,
-  "conversationId" | "senderId" | "body"
->;
+interface SendMessageArguments {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+}
 
 export default resolvers;
