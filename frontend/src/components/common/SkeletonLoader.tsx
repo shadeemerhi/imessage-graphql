@@ -1,13 +1,17 @@
 import { Skeleton } from "@chakra-ui/react";
 import React from "react";
 
-interface ListLoaderProps {
+interface SkeletonLoaderProps {
   count: number;
   height: string;
   width: string;
 }
 
-const ListLoader: React.FC<ListLoaderProps> = ({ count, height, width }) => {
+const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
+  count,
+  height,
+  width,
+}) => {
   return (
     <>
       {[...Array(count)].map((_, i) => (
@@ -23,4 +27,4 @@ const ListLoader: React.FC<ListLoaderProps> = ({ count, height, width }) => {
     </>
   );
 };
-export default ListLoader;
+export default SkeletonLoader;

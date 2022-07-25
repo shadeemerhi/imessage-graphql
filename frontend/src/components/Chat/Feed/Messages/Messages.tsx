@@ -8,7 +8,7 @@ import {
   MessagesSubscriptionData,
   MessagesVariables,
 } from "../../../../util/types";
-import ListLoader from "../../../common/ListLoader";
+import SkeletonLoader from "../../../common/SkeletonLoader";
 import MessageItem from "./MessageItem";
 
 interface MessagesProps {
@@ -61,7 +61,7 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     <Flex direction="column" justify="flex-end" overflow="hidden">
       {loading && (
         <Stack spacing={4} px={4}>
-          <ListLoader count={4} height="60px" width="100%" />
+          <SkeletonLoader count={4} height="60px" width="100%" />
         </Stack>
       )}
       {data?.messages && (

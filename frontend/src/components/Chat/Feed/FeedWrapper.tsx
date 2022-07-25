@@ -3,6 +3,7 @@ import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React from "react";
 import MessageInput from "./Input";
+import MessagesHeader from "./Messages/Header";
 import Messages from "./Messages/Messages";
 import NoConversation from "./NoConversation";
 
@@ -30,27 +31,7 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
       {conversationId && typeof conversationId === "string" ? (
         <>
           <Flex direction="column" justify="space-between" height="88%">
-            <Stack
-              direction="row"
-              align="center"
-              spacing={6}
-              py={5}
-              px={{ base: 4, md: 0 }}
-              borderBottom="1px solid"
-              borderColor="whiteAlpha.200"
-            >
-              <Button
-                display={{ md: "none" }}
-                onClick={() =>
-                  router.replace("?conversationId", "/", {
-                    shallow: true,
-                  })
-                }
-              >
-                Back
-              </Button>
-              <Text>{conversationId}</Text>
-            </Stack>
+            <MessagesHeader conversationId={conversationId} />
             <Messages
               userId={session.user.id}
               conversationId={conversationId}
