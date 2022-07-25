@@ -18,7 +18,6 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 }) => {
   return (
     <Stack
-      key={conversation.id}
       direction="row"
       spacing={4}
       p={4}

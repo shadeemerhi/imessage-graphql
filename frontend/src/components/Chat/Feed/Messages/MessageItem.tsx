@@ -9,13 +9,7 @@ interface MessageItemProps {
 
 const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
   return (
-    <Stack
-      key={message.id}
-      direction="row"
-      p={4}
-      spacing={4}
-      _hover={{ bg: "whiteAlpha.200" }}
-    >
+    <Stack direction="row" p={4} spacing={4} _hover={{ bg: "whiteAlpha.200" }}>
       <Avatar />
       <Stack>
         <Stack direction="row" align="center" spacing={4}>

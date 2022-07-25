@@ -1,14 +1,14 @@
 import { useQuery } from "@apollo/client";
-import { Flex, Text, Box, Skeleton, Stack, Avatar } from "@chakra-ui/react";
-import moment from "moment";
+import { Flex, Stack } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import MessageOperations from "../../../../graphql/operations/messages";
 import {
   MessagesData,
-  MessagesVariables,
   MessagesSubscriptionData,
+  MessagesVariables,
 } from "../../../../util/types";
+import ListLoader from "../../../common/ListLoader";
 import MessageItem from "./MessageItem";
 
 interface MessagesProps {
@@ -61,21 +61,13 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     <Flex direction="column" justify="flex-end" overflow="hidden">
       {loading && (
         <Stack spacing={4} px={4}>
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton
-              key={i}
-              width="100%"
-              height="60px"
-              startColor="blackAlpha.400"
-              endColor="whiteAlpha.300"
-            />
-          ))}
+          <ListLoader count={4} height="60px" width="100%" />
         </Stack>
       )}
       {data?.messages && (
         <Flex direction="column-reverse" overflow="scroll" height="100%">
           {data.messages.map((message) => (
-            <MessageItem message={message} />
+            <MessageItem key={message.id} message={message} />
           ))}
         </Flex>
       )}

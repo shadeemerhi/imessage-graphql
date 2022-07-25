@@ -41,6 +41,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <CreateConversationModal isOpen={modalIsOpen} onClose={onModalClose} />
       {conversations.map((conversation) => (
         <ConversationItem
+          key={conversation.id}
           conversation={conversation}
           router={router}
           conversationId={conversationId as string}

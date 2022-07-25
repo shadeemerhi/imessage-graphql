@@ -8,8 +8,8 @@ import {
   ConversationsData,
   ConversationSubscriptionData,
 } from "../../../util/types";
+import ListLoader from "../../common/ListLoader";
 import ConversationList from "./ConversationList";
-import ConversationLoader from "./Loader";
 
 interface ConversationsProps {}
 
@@ -64,7 +64,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({}) => {
       position="relative"
     >
       {loading ? (
-        <ConversationLoader />
+        <ListLoader count={7} height="80px" width="100%" />
       ) : (
         <ConversationList conversations={data?.conversations || []} />
       )}
