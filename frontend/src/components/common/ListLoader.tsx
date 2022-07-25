@@ -10,7 +10,7 @@ interface ListLoaderProps {
 const ListLoader: React.FC<ListLoaderProps> = ({ count, height, width }) => {
   return (
     <>
-      {Array.from({ length: count }, (_, i) => (
+      {[...Array(count)].map((_, i) => (
         <Skeleton
           key={i}
           startColor="blackAlpha.400"
