@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
-import { GraphQLContext } from "../../../util/types";
-import { verifyAndCreateUsername } from "./helpers";
+import { verifyAndCreateUsername } from "../../util/dbHelpers";
+import { CreateUsernameResponse, GraphQLContext } from "../../util/types";
 
 const resolvers = {
   Query: {
@@ -44,18 +44,12 @@ const resolvers = {
       const { id } = session.user;
       const { username } = args;
 
-      return await verifyAndCreateUsername(id, username);
+      return await verifyAndCreateUsername(
+        { userId: id, username },
+        context.prisma
+      );
     },
   },
 };
-
-export interface CreateUsernameResponse {
-  success?: boolean;
-  error?: string;
-}
-
-export interface SearchUsersResponse {
-  users: Array<User>;
-}
 
 export default resolvers;

@@ -1,5 +1,9 @@
 import { ApolloError } from "apollo-server-core";
-import { GraphQLContext } from "../../../util/types";
+import {
+  GraphQLContext,
+  MessageFE,
+  SendMessageArguments,
+} from "../../util/types";
 
 const resolvers = {
   Query: {
@@ -105,22 +109,5 @@ const resolvers = {
     },
   },
 };
-
-interface MessageFE {
-  id: string;
-  body: string;
-  sender: {
-    id: string;
-    username: string;
-  };
-  createdAt: Date;
-}
-
-interface SendMessageArguments {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  body: string;
-}
 
 export default resolvers;

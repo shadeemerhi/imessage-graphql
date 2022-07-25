@@ -1,7 +1,10 @@
-import { Conversation, Message } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
-import { GraphQLContext } from "../../../util/types";
 import { PubSub, withFilter } from "graphql-subscriptions";
+import {
+  ConversationFE,
+  CreateConversationSubscriptionPayload,
+  GraphQLContext,
+} from "../../util/types";
 
 /**
  * @todo
@@ -157,25 +160,5 @@ const resolvers = {
     },
   },
 };
-
-interface ConversationFE extends Conversation {
-  participants: Array<ConversationParticipant>;
-  latestMessage: Message | null;
-}
-
-interface ConversationParticipant {
-  user: {
-    id: string;
-    username: string;
-  };
-}
-
-interface NewConveration extends Conversation {
-  participants: Array<ConversationParticipant>;
-}
-
-interface CreateConversationSubscriptionPayload {
-  conversationCreated: NewConveration;
-}
 
 export default resolvers;
