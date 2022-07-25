@@ -1,18 +1,11 @@
 import { ApolloError } from "apollo-server-core";
-import { PubSub, withFilter } from "graphql-subscriptions";
+import { withFilter } from "graphql-subscriptions";
 import {
   GraphQLContext,
   MessageFE,
   SendMessageArguments,
   SendMessageSubscriptionPayload,
 } from "../../util/types";
-
-/**
- * @todo
- * Not sure how to access pubsub from
- * context when using withFilter
- */
-const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -59,7 +52,7 @@ const resolvers = {
       args: SendMessageArguments,
       context: GraphQLContext
     ): Promise<boolean> {
-      const { session, prisma } = context;
+      const { session, prisma, pubsub } = context;
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
@@ -111,17 +104,12 @@ const resolvers = {
   },
   Subscription: {
     messageSent: {
-      // subscribe: (_: any, __: any, context: GraphQLContext) => {
-      //   const { pubsub } = context;
-      //   return pubsub.asyncIterator(["MESSAGE_SENT"]);
-      // },
-      /**
-       * @todo
-       * Not sure how to access pubsub from
-       * context when using withFilter
-       */
       subscribe: withFilter(
-        () => pubsub.asyncIterator(["MESSAGE_SENT"]),
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
+
+          return pubsub.asyncIterator(["MESSAGE_SENT"]);
+        },
         (
           payload: SendMessageSubscriptionPayload,
           args: { conversationId: string },

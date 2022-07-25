@@ -1,18 +1,10 @@
 import { ApolloError } from "apollo-server-core";
-import { PubSub, withFilter } from "graphql-subscriptions";
+import { withFilter } from "graphql-subscriptions";
 import {
   ConversationFE,
   CreateConversationSubscriptionPayload,
   GraphQLContext,
 } from "../../util/types";
-
-/**
- * @todo
- * Add to context
- * Currently unsure of how to access
- * context pubsub in withFilter
- */
-const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -82,7 +74,7 @@ const resolvers = {
       args: { participantIds: Array<string> },
       context: GraphQLContext
     ): Promise<{ conversationId: string }> {
-      const { session, prisma } = context;
+      const { session, prisma, pubsub } = context;
       const { participantIds } = args;
 
       if (!session?.user) {
@@ -135,7 +127,11 @@ const resolvers = {
          * @todo
          * Not sure how to access context pubsub here
          */
-        () => pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
+
+          return pubsub.asyncIterator(["CONVERSATION_CREATED"]);
+        },
         (
           payload: CreateConversationSubscriptionPayload,
           _,
