@@ -41,7 +41,7 @@ export interface SearchUsersResponse {
 /**
  * Messages
  */
-export interface MessageFE {
+export interface MessageFE extends Message {
   id: string;
   body: string;
   sender: {
@@ -56,6 +56,10 @@ export interface SendMessageArguments {
   conversationId: string;
   senderId: string;
   body: string;
+}
+
+export interface SendMessageSubscriptionPayload {
+  messageSent: MessageFE;
 }
 
 /**
