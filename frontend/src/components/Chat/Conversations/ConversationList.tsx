@@ -15,6 +15,7 @@ import {
   ConversationFE,
   ConversationParticipant,
 } from "../../../graphql/operations/conversations";
+import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
@@ -61,41 +62,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
       </Box>
       <CreateConversationModal isOpen={modalIsOpen} onClose={onModalClose} />
       {conversations.map((conversation) => (
-        <Stack
-          key={conversation.id}
-          direction="row"
-          spacing={4}
-          p={4}
-          cursor="pointer"
-          borderRadius={4}
-          bg={conversation.id === conversationId ? "whiteAlpha.200" : "none"}
-          _hover={{ bg: "whiteAlpha.200" }}
-          onClick={() =>
-            router.push({ query: { conversationId: conversation.id } })
-          }
-        >
-          <Avatar />
-          <Flex justify="space-between" width="80%">
-            <Flex direction="column" width="70%">
-              <Text
-                fontWeight={600}
-                whiteSpace="nowrap"
-                overflow="hidden"
-                textOverflow="ellipsis"
-              >
-                {formatUsernames(conversation.participants)}
-              </Text>
-              {conversation.latestMessage && (
-                <Text color="whiteAlpha.700">
-                  {conversation.latestMessage.body}
-                </Text>
-              )}
-            </Flex>
-            <Text color="whiteAlpha.700">
-              {moment(conversation.updatedAt).format("LT")}
-            </Text>
-          </Flex>
-        </Stack>
+        <ConversationItem
+          conversation={conversation}
+          router={router}
+          conversationId={conversationId as string}
+        />
       ))}
       <Box position="absolute" bottom={0} left={0} width="100%" p={8}>
         <Button width="100%" onClick={() => signOut()}>
