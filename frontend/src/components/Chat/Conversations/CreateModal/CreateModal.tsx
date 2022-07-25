@@ -10,19 +10,19 @@ import {
   ModalOverlay,
   Stack,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import UserOperations, {
-  UserSearch,
-  UserSearchData,
-  UserSearchInput,
-} from "../../../../graphql/operations/users";
-import ConversationOperations, {
+import ConversationOperations from "../../../../graphql/operations/conversations";
+import UserOperations from "../../../../graphql/operations/users";
+import {
   CreateConversationData,
-} from "../../../../graphql/operations/conversations";
+  SearchedUser,
+  SearchUsersData,
+  SearchUsersInputs,
+} from "../../../../util/types";
 import Participants from "./Participants";
 import UserList from "./UserList";
-import { useRouter } from "next/router";
 
 interface CreateConversationModal {
   isOpen: boolean;
@@ -34,7 +34,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
   onClose,
 }) => {
   const [username, setUsername] = useState("");
-  const [participants, setParticipants] = useState<Array<UserSearch>>([]);
+  const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
   const router = useRouter();
 
   const [
@@ -44,7 +44,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
       loading: searchUsersLoading,
       error: searchUsersError,
     },
-  ] = useLazyQuery<UserSearchData, UserSearchInput>(
+  ] = useLazyQuery<SearchUsersData, SearchUsersInputs>(
     UserOperations.Queries.searchUsers
   );
 
@@ -90,7 +90,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
     searchUsers({ variables: { username } });
   };
 
-  const addParticipant = (user: UserSearch) => {
+  const addParticipant = (user: SearchedUser) => {
     setParticipants((prev) => [...prev, user]);
   };
 

@@ -3,10 +3,11 @@ import { Stack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
-import ConversationOperations, {
+import ConversationOperations from "../../../graphql/operations/conversations";
+import {
   ConversationsData,
   ConversationSubscriptionData,
-} from "../../../graphql/operations/conversations";
+} from "../../../util/types";
 import ConversationList from "./ConversationList";
 import ConversationLoader from "./Loader";
 

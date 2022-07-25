@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-import { User } from "@prisma/client";
 
 export default {
   Queries: {
@@ -24,24 +23,3 @@ export default {
   },
   Subscriptions: {},
 };
-
-export interface ICreateUsernameVariables {
-  username: string;
-}
-
-export interface ICreateUsernameData {
-  createUsername: {
-    success: boolean;
-    error: string;
-  };
-}
-
-export interface UserSearchInput {
-  username: string;
-}
-
-export interface UserSearchData {
-  searchUsers: Array<UserSearch>;
-}
-
-export type UserSearch = Pick<User, "id" | "username">;

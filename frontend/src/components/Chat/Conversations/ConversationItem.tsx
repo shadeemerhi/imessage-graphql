@@ -2,10 +2,8 @@ import { Avatar, Flex, Stack, Text } from "@chakra-ui/react";
 import moment from "moment";
 import { NextRouter } from "next/router";
 import React from "react";
-import {
-  ConversationFE,
-  ConversationParticipant,
-} from "../../../graphql/operations/conversations";
+import { formatUsernames } from "../../../util/functions";
+import { ConversationFE } from "../../../util/types";
 
 interface ConversationItemProps {
   conversation: ConversationFE;
@@ -18,16 +16,6 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   router,
   conversationId,
 }) => {
-  const formatUsernames = (
-    participants: Array<ConversationParticipant>
-  ): string => {
-    const usernames = participants.map(
-      (participant) => participant.user.username
-    );
-
-    return usernames.join(", ");
-  };
-
   return (
     <Stack
       key={conversation.id}

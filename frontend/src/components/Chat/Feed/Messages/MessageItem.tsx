@@ -1,7 +1,7 @@
 import { Stack, Avatar, Text } from "@chakra-ui/react";
 import moment from "moment";
 import React from "react";
-import { MessageFE } from "../../../../graphql/operations/messages";
+import { MessageFE } from "../../../../util/types";
 
 interface MessageItemProps {
   message: MessageFE;

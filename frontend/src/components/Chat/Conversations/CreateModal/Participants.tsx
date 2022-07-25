@@ -1,10 +1,10 @@
 import { Stack, Button, Box, Text } from "@chakra-ui/react";
 import React from "react";
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import { UserSearch } from "../../../../graphql/operations/users";
+import { SearchedUser } from "../../../../util/types";
 
 interface ParticipantsProps {
-  participants: Array<UserSearch>;
+  participants: Array<SearchedUser>;
   removeParticipant: (userId: string) => void;
 }
 

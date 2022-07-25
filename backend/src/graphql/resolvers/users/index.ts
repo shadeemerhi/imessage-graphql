@@ -32,7 +32,7 @@ const resolvers = {
       _: any,
       args: { username: string },
       context: GraphQLContext
-    ): Promise<ICreateUsernameResponse> {
+    ): Promise<CreateUsernameResponse> {
       const { session } = context;
 
       if (!session?.user) {
@@ -49,7 +49,7 @@ const resolvers = {
   },
 };
 
-export interface ICreateUsernameResponse {
+export interface CreateUsernameResponse {
   success?: boolean;
   error?: string;
 }

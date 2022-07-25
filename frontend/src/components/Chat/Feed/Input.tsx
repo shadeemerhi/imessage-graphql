@@ -4,10 +4,9 @@ import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import MessageOperations, {
-  SendMessageVariables,
-} from "../../../graphql/operations/messages";
+import MessageOperations from "../../../graphql/operations/messages";
 import { ObjectID } from "bson";
+import { SendMessageVariables } from "../../../util/types";
 
 interface MessageInputProps {
   session: Session;

@@ -3,11 +3,12 @@ import { Flex, Text, Box, Skeleton, Stack, Avatar } from "@chakra-ui/react";
 import moment from "moment";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
-import MessageOperations, {
+import MessageOperations from "../../../../graphql/operations/messages";
+import {
   MessagesData,
-  MessagesSubscriptionData,
   MessagesVariables,
-} from "../../../../graphql/operations/messages";
+  MessagesSubscriptionData,
+} from "../../../../util/types";
 import MessageItem from "./MessageItem";
 
 interface MessagesProps {

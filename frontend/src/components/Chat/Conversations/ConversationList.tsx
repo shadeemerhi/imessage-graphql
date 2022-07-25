@@ -1,20 +1,8 @@
-import {
-  Stack,
-  Avatar,
-  Flex,
-  Button,
-  useDisclosure,
-  Box,
-  Text,
-} from "@chakra-ui/react";
-import moment from "moment";
+import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React from "react";
-import {
-  ConversationFE,
-  ConversationParticipant,
-} from "../../../graphql/operations/conversations";
+import { ConversationFE } from "../../../util/types";
 import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
 
@@ -34,16 +22,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
   const router = useRouter();
 
   const { conversationId } = router.query;
-
-  const formatUsernames = (
-    participants: Array<ConversationParticipant>
-  ): string => {
-    const usernames = participants.map(
-      (participant) => participant.user.username
-    );
-
-    return usernames.join(", ");
-  };
 
   return (
     <>
