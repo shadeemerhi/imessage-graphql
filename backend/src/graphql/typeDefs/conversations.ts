@@ -11,6 +11,7 @@ const typeDefs = gql`
   type Participants {
     id: String
     user: User
+    hasSeenLatestMessage: Boolean
   }
 
   type Message {
@@ -34,6 +35,10 @@ const typeDefs = gql`
 
   type Subscription {
     conversationCreated: Conversation
+  }
+
+  type Subscription {
+    conversationUpdated: Conversation
   }
 `;
 

@@ -8,6 +8,7 @@ import { ConversationFE } from "../../../util/types";
 interface ConversationItemProps {
   conversation: ConversationFE;
   router: NextRouter;
+  userHasSeenLatestMessage: boolean;
   conversationId: string;
 }
 
@@ -15,6 +16,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
   router,
   conversationId,
+  userHasSeenLatestMessage,
 }) => {
   return (
     <Stack
@@ -23,6 +25,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       p={4}
       cursor="pointer"
       borderRadius={4}
+      // border={!userHasSeenLatestMessage ? "1px solid blue" : "none"}
       bg={conversation.id === conversationId ? "whiteAlpha.200" : "none"}
       _hover={{ bg: "whiteAlpha.200" }}
       onClick={() =>

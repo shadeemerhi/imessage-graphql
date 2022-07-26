@@ -89,6 +89,7 @@ export interface ConversationParticipant {
     id: string;
     username: string;
   };
+  hasSeenLatestMessage: boolean;
 }
 
 // Operations

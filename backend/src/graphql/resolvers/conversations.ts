@@ -91,7 +91,10 @@ const resolvers = {
           data: {
             participants: {
               createMany: {
-                data: [id, ...participantIds].map((id) => ({ userId: id })),
+                data: [id, ...participantIds].map((id) => ({
+                  userId: id,
+                  hasSeenLatestMessage: false,
+                })),
               },
             },
           },
@@ -123,10 +126,6 @@ const resolvers = {
   Subscription: {
     conversationCreated: {
       subscribe: withFilter(
-        /**
-         * @todo
-         * Not sure how to access context pubsub here
-         */
         (_: any, __: any, context: GraphQLContext) => {
           const { pubsub } = context;
 
@@ -153,6 +152,12 @@ const resolvers = {
           return userIsParticipant;
         }
       ),
+    },
+    conversationUpdated: {
+      subscribe: (_: any, __: any, context: GraphQLContext) => {
+        const { pubsub } = context;
+        return pubsub.asyncIterator(["CONVERSATION_UPDATED"]);
+      },
     },
   },
 };

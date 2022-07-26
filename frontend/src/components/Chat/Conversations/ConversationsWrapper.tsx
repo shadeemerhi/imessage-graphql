@@ -1,5 +1,6 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
 import { Stack } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
@@ -11,9 +12,11 @@ import {
 import SkeletonLoader from "../../common/SkeletonLoader";
 import ConversationList from "./ConversationList";
 
-interface ConversationsProps {}
+interface ConversationsProps {
+  session: Session;
+}
 
-const ConversationsWrapper: React.FC<ConversationsProps> = ({}) => {
+const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
   const router = useRouter();
   const { conversationId } = router.query;
 
@@ -21,6 +24,14 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({}) => {
     ConversationsData,
     null
   >(ConversationOperations.Queries.conversations);
+
+  console.log("CONVERSATION DATA", data);
+
+  const { data: subData } = useSubscription(
+    ConversationOperations.Subscriptions.conversationUpdated
+  );
+
+  console.log("SUB DATA", subData);
 
   const subscribeToNewConversations = () => {
     subscribeToMore({
@@ -66,7 +77,10 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({}) => {
       {loading ? (
         <SkeletonLoader count={7} height="80px" width="100%" />
       ) : (
-        <ConversationList conversations={data?.conversations || []} />
+        <ConversationList
+          userId={session.user.id}
+          conversations={data?.conversations || []}
+        />
       )}
     </Stack>
   );

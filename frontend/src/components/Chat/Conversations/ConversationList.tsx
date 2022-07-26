@@ -7,10 +7,12 @@ import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
+  userId: string;
   conversations: Array<ConversationFE>;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
+  userId,
   conversations,
 }) => {
   const {
@@ -22,6 +24,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
   const router = useRouter();
 
   const { conversationId } = router.query;
+
+  const userHasSeenConversationLatestMessage = (
+    conversation: ConversationFE
+  ) => {
+    return !!conversation.participants.find((p) => p.user.id === userId)
+      ?.hasSeenLatestMessage;
+  };
 
   return (
     <>
@@ -44,6 +53,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
           key={conversation.id}
           conversation={conversation}
           router={router}
+          userHasSeenLatestMessage={userHasSeenConversationLatestMessage(
+            conversation
+          )}
           conversationId={conversationId as string}
         />
       ))}

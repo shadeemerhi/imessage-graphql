@@ -78,6 +78,7 @@ model ConversationParticipants {
   userId          String
   conversation    Conversation @relation(fields: [conversationId], references: [id])
   conversationId  String
+  hasSeenLatestMessage Boolean
 }
 
 model Message {

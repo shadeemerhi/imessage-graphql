@@ -12,8 +12,10 @@ export default {
               id
               username
             }
+            hasSeenLatestMessage
           }
           latestMessage {
+            createdAt
             body
           }
         }
@@ -42,6 +44,26 @@ export default {
             }
           }
           latestMessage {
+            createdAt
+            body
+          }
+        }
+      }
+    `,
+    conversationUpdated: gql`
+      subscription ConversationUpdated {
+        conversationUpdated {
+          id
+          updatedAt
+          participants {
+            user {
+              id
+              username
+            }
+            hasSeenLatestMessage
+          }
+          latestMessage {
+            createdAt
             body
           }
         }

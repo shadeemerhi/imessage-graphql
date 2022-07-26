@@ -58,7 +58,13 @@ const resolvers = {
         throw new ApolloError("Not authorized");
       }
 
-      const { id, senderId, conversationId, body } = args;
+      const { id: userId } = session.user;
+
+      /**
+       * @todo
+       * Consider adding participantId to args
+       */
+      const { id: messageId, senderId, conversationId, body } = args;
 
       try {
         /**
@@ -66,7 +72,7 @@ const resolvers = {
          */
         const newMessage = await prisma.message.create({
           data: {
-            id,
+            id: messageId,
             senderId,
             conversationId,
             body,
@@ -81,19 +87,76 @@ const resolvers = {
           },
         });
 
+        // /**
+        //  * @todo
+        //  * Consider passing participantId in args
+        //  */
+        const participant = await prisma.conversationParticipants.findFirst({
+          where: {
+            userId,
+          },
+        });
+
         /**
-         * Update conversation latestMessageId
+         * Should always exist
+         * @todo
+         * Consider passing participantId in args
          */
-        await prisma.conversation.update({
+        if (!participant) {
+          throw new ApolloError("Participant does not exist");
+        }
+
+        const { id: participantId } = participant;
+
+        /**
+         * Update conversation latestMessage
+         */
+        const conversation = await prisma.conversation.update({
           where: {
             id: conversationId,
           },
           data: {
             latestMessageId: newMessage.id,
+            participants: {
+              update: {
+                where: {
+                  id: participantId,
+                },
+                data: {
+                  hasSeenLatestMessage: true,
+                },
+              },
+              updateMany: {
+                where: {
+                  NOT: {
+                    userId,
+                  },
+                },
+                data: {
+                  hasSeenLatestMessage: false,
+                },
+              },
+            },
+          },
+          include: {
+            participants: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                  },
+                },
+              },
+            },
+            latestMessage: true,
           },
         });
 
         pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
+        pubsub.publish("CONVERSATION_UPDATED", {
+          conversationUpdated: conversation,
+        });
 
         return true;
       } catch (error) {
