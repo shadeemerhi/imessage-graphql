@@ -25,8 +25,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     null
   >(ConversationOperations.Queries.conversations);
 
-  console.log("CONVERSATION DATA", data);
-
   const { data: subData } = useSubscription(
     ConversationOperations.Subscriptions.conversationUpdated
   );

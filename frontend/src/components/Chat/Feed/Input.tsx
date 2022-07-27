@@ -1,12 +1,11 @@
 import { useMutation } from "@apollo/client";
 import { Box, Input } from "@chakra-ui/react";
+import { ObjectID } from "bson";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import MessageOperations from "../../../graphql/operations/messages";
-import { ObjectID } from "bson";
-import { SendMessageVariables } from "../../../util/types";
+import { MessagesData, SendMessageVariables } from "../../../util/types";
 
 interface MessageInputProps {
   session: Session;
@@ -52,29 +51,28 @@ const MessageInput: React.FC<MessageInputProps> = ({
         optimisticResponse: {
           sendMessage: true,
         },
-        update: (proxy) => {
-          const existing = proxy.readQuery({
+        update: (cache) => {
+          cache;
+          const existing = cache.readQuery<MessagesData>({
             query: MessageOperations.Query.messages,
             variables: { conversationId },
-          });
+          }) as MessagesData;
 
-          proxy.writeQuery({
+          cache.writeQuery<MessagesData, { conversationId: string }>({
             query: MessageOperations.Query.messages,
             variables: { conversationId },
             data: {
-              // @ts-ignore
               ...existing,
               messages: [
                 {
                   id: newId,
                   body: messageBody,
-                  createdAt: Date.now(),
+                  createdAt: new Date(Date.now()),
                   sender: {
                     id: session.user.id,
                     username: session.user.username,
                   },
                 },
-                // @ts-ignore
                 ...existing.messages,
               ],
             },

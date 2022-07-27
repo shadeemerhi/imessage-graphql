@@ -26,8 +26,8 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     },
   });
 
-  const subscribeToMoreMessages = () => {
-    subscribeToMore({
+  const subscribeToMoreMessages = (conversationId: string) => {
+    return subscribeToMore({
       document: MessageOperations.Subscriptions.messageSent,
       variables: {
         conversationId,
@@ -48,8 +48,10 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   };
 
   useEffect(() => {
-    subscribeToMoreMessages();
-  }, []);
+    const unsubscribe = subscribeToMoreMessages(conversationId);
+
+    return () => unsubscribe();
+  }, [conversationId]);
 
   if (error) {
     toast.error("Error fetching messages");

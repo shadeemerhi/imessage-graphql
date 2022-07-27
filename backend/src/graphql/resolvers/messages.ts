@@ -59,11 +59,6 @@ const resolvers = {
       }
 
       const { id: userId } = session.user;
-
-      /**
-       * @todo
-       * Consider adding participantId to args
-       */
       const { id: messageId, senderId, conversationId, body } = args;
 
       try {
@@ -87,20 +82,18 @@ const resolvers = {
           },
         });
 
-        // /**
-        //  * @todo
-        //  * Consider passing participantId in args
-        //  */
+        /**
+         * Could cache this in production
+         */
         const participant = await prisma.conversationParticipants.findFirst({
           where: {
             userId,
+            conversationId,
           },
         });
 
         /**
          * Should always exist
-         * @todo
-         * Consider passing participantId in args
          */
         if (!participant) {
           throw new ApolloError("Participant does not exist");
