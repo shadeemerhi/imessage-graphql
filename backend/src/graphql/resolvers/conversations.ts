@@ -122,6 +122,34 @@ const resolvers = {
         throw new ApolloError("Error creating conversation");
       }
     },
+    markConversationAsRead: async function (
+      _: any,
+      args: { participantId: string },
+      context: GraphQLContext
+    ): Promise<boolean> {
+      const { participantId } = args;
+      const { session, prisma } = context;
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      try {
+        await prisma.conversationParticipants.update({
+          where: {
+            id: participantId,
+          },
+          data: {
+            hasSeenLatestMessage: true,
+          },
+        });
+
+        return true;
+      } catch (error: any) {
+        console.log("markConversationAsRead error", error);
+        throw new ApolloError(error.message);
+      }
+    },
   },
   Subscription: {
     conversationCreated: {
