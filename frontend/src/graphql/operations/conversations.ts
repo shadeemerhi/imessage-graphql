@@ -31,8 +31,11 @@ export default {
       }
     `,
     markConversationAsRead: gql`
-      mutation MarkConversationAsRead($participantId: String!) {
-        markConversationAsRead(participantId: $participantId)
+      mutation MarkConversationAsRead(
+        $userId: String!
+        $conversationId: String!
+      ) {
+        markConversationAsRead(userId: $userId, conversationId: $conversationId)
       }
     `,
   },

@@ -105,9 +105,9 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} size={{ base: "sm", md: "md" }}>
         <ModalOverlay />
-        <ModalContent bg="whiteAlpha.100" color="whiteAlpha.900" pb={4}>
+        <ModalContent bg="#2d2d2d" pb={4}>
           <ModalHeader>Find or Create a Conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

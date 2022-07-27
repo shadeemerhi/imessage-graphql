@@ -124,10 +124,10 @@ const resolvers = {
     },
     markConversationAsRead: async function (
       _: any,
-      args: { participantId: string },
+      args: { userId: string; conversationId: string },
       context: GraphQLContext
     ): Promise<boolean> {
-      const { participantId } = args;
+      const { userId, conversationId } = args;
       const { session, prisma } = context;
 
       if (!session?.user) {
@@ -135,9 +135,10 @@ const resolvers = {
       }
 
       try {
-        await prisma.conversationParticipants.update({
+        await prisma.conversationParticipants.updateMany({
           where: {
-            id: participantId,
+            userId,
+            conversationId,
           },
           data: {
             hasSeenLatestMessage: true,

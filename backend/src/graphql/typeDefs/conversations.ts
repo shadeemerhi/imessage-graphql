@@ -34,7 +34,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    markConversationAsRead(participantId: String): Boolean
+    markConversationAsRead(userId: String!, conversationId: String!): Boolean
   }
 
   type Subscription {

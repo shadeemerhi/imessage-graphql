@@ -1,22 +1,21 @@
 import { Avatar, Flex, Stack, Text } from "@chakra-ui/react";
 import moment from "moment";
-import { NextRouter } from "next/router";
 import React from "react";
 import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
 
 interface ConversationItemProps {
   conversation: ConversationFE;
-  router: NextRouter;
-  userHasSeenLatestMessage: boolean;
   conversationId: string;
+  hasSeenLatestMessage: boolean;
+  onViewConversation: () => void;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
-  router,
   conversationId,
-  userHasSeenLatestMessage,
+  hasSeenLatestMessage,
+  onViewConversation,
 }) => {
   return (
     <Stack
@@ -25,12 +24,10 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       p={4}
       cursor="pointer"
       borderRadius={4}
-      // border={!userHasSeenLatestMessage ? "1px solid blue" : "none"}
+      border={!hasSeenLatestMessage ? "1px solid blue" : "none"}
       bg={conversation.id === conversationId ? "whiteAlpha.200" : "none"}
       _hover={{ bg: "whiteAlpha.200" }}
-      onClick={() =>
-        router.push({ query: { conversationId: conversation.id } })
-      }
+      onClick={onViewConversation}
     >
       <Avatar />
       <Flex justify="space-between" width="80%">

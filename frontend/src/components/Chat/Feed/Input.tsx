@@ -52,7 +52,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
           sendMessage: true,
         },
         update: (cache) => {
-          cache;
           const existing = cache.readQuery<MessagesData>({
             query: MessageOperations.Query.messages,
             variables: { conversationId },
