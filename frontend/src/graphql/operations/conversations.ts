@@ -71,8 +71,13 @@ export default {
             hasSeenLatestMessage
           }
           latestMessage {
-            createdAt
+            id
             body
+            createdAt
+            sender {
+              id
+              username
+            }
           }
         }
       }

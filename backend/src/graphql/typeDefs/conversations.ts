@@ -14,13 +14,6 @@ const typeDefs = gql`
     hasSeenLatestMessage: Boolean
   }
 
-  type Message {
-    id: String
-    conversationId: String
-    senderId: String
-    body: String
-  }
-
   type Query {
     conversations: [Conversation]
   }
