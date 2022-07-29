@@ -1,6 +1,7 @@
-import { Avatar, Flex, Stack, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
 import moment from "moment";
 import React from "react";
+import { GoPrimitiveDot } from "react-icons/go";
 import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
 
@@ -20,15 +21,21 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   return (
     <Stack
       direction="row"
-      spacing={4}
+      align="center"
+      justify="space-between"
       p={4}
       cursor="pointer"
       borderRadius={4}
-      border={!hasSeenLatestMessage ? "1px solid blue" : "none"}
       bg={conversation.id === conversationId ? "whiteAlpha.200" : "none"}
       _hover={{ bg: "whiteAlpha.200" }}
       onClick={onViewConversation}
+      position="relative"
     >
+      <Flex position="absolute" left="4px">
+        {!hasSeenLatestMessage && (
+          <GoPrimitiveDot fontSize={18} color="#6B46C1" />
+        )}
+      </Flex>
       <Avatar />
       <Flex justify="space-between" width="80%">
         <Flex direction="column" width="70%">
@@ -41,12 +48,19 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             {formatUsernames(conversation.participants)}
           </Text>
           {conversation.latestMessage && (
-            <Text color="whiteAlpha.700">
-              {conversation.latestMessage.body}
-            </Text>
+            <Box>
+              <Text
+                color="whiteAlpha.700"
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+              >
+                {conversation.latestMessage.body}
+              </Text>
+            </Box>
           )}
         </Flex>
-        <Text color="whiteAlpha.700">
+        <Text color="whiteAlpha.700" textAlign="right">
           {moment(conversation.updatedAt).format("LT")}
         </Text>
       </Flex>

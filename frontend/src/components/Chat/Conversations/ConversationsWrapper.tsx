@@ -65,8 +65,8 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     <Stack
       direction="column"
       display={{ base: conversationId ? "none" : "flex", md: "flex" }}
-      width={{ base: "100%", md: "30%" }}
-      maxWidth={{ base: "none", md: "360px" }}
+      width={{ base: "100%", md: "40%" }}
+      maxWidth={{ base: "none", md: "400px" }}
       bg="whiteAlpha.50"
       py={6}
       px={3}
