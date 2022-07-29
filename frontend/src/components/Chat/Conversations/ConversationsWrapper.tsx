@@ -1,18 +1,19 @@
-import { ApolloClient, useQuery, useSubscription } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
 import { Stack } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import ConversationOperations from "../../../graphql/operations/conversations";
+import MessageOperations from "../../../graphql/operations/messages";
 import {
-  ConversationsData,
   ConversationCreatedSubscriptionData,
+  ConversationsData,
   ConversationUpdatedData,
+  MessagesData,
 } from "../../../util/types";
 import SkeletonLoader from "../../common/SkeletonLoader";
 import ConversationList from "./ConversationList";
-import { ConversationFE } from "../../../util/types";
 
 interface ConversationsProps {
   session: Session;
@@ -36,6 +37,36 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
          * Take latestMessage from subscriptionData and
          * write it to message query for conversation
          */
+        const { data } = subscriptionData;
+
+        if (!data) return;
+
+        const {
+          conversationUpdated: { id, latestMessage },
+        } = data;
+
+        /**
+         * Already viewing conversation where
+         * new message is received; no need
+         * to manually update cache
+         */
+        if (id === conversationId) return;
+
+        const existing = client.readQuery<MessagesData>({
+          query: MessageOperations.Query.messages,
+          variables: { conversationId: id },
+        });
+
+        if (!existing) return;
+
+        client.writeQuery<MessagesData>({
+          query: MessageOperations.Query.messages,
+          variables: { conversationId: id },
+          data: {
+            ...existing,
+            messages: [latestMessage, ...existing.messages],
+          },
+        });
       },
     }
   );
