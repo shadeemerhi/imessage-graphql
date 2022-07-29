@@ -103,10 +103,14 @@ export interface ConversationsData {
   conversations: Array<ConversationFE>;
 }
 
-export interface ConversationSubscriptionData {
+export interface ConversationCreatedSubscriptionData {
   subscriptionData: {
     data: {
       conversationCreated: ConversationFE;
     };
   };
+}
+
+export interface ConversationUpdatedData {
+  conversationUpdated: ConversationFE;
 }

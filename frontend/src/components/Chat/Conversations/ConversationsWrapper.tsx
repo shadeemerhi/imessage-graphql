@@ -1,4 +1,4 @@
-import { useQuery, useSubscription } from "@apollo/client";
+import { ApolloClient, useQuery, useSubscription } from "@apollo/client";
 import { Stack } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
@@ -7,10 +7,12 @@ import toast from "react-hot-toast";
 import ConversationOperations from "../../../graphql/operations/conversations";
 import {
   ConversationsData,
-  ConversationSubscriptionData,
+  ConversationCreatedSubscriptionData,
+  ConversationUpdatedData,
 } from "../../../util/types";
 import SkeletonLoader from "../../common/SkeletonLoader";
 import ConversationList from "./ConversationList";
+import { ConversationFE } from "../../../util/types";
 
 interface ConversationsProps {
   session: Session;
@@ -25,8 +27,17 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     null
   >(ConversationOperations.Queries.conversations);
 
-  const { data: subData } = useSubscription(
-    ConversationOperations.Subscriptions.conversationUpdated
+  const { data: subData } = useSubscription<ConversationUpdatedData, null>(
+    ConversationOperations.Subscriptions.conversationUpdated,
+    {
+      onSubscriptionData: ({ client, subscriptionData }) => {
+        /**
+         * @todo
+         * Take latestMessage from subscriptionData and
+         * write it to message query for conversation
+         */
+      },
+    }
   );
 
   console.log("SUB DATA", subData);
@@ -36,7 +47,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
       document: ConversationOperations.Subscriptions.conversationCreated,
       updateQuery: (
         prev,
-        { subscriptionData }: ConversationSubscriptionData
+        { subscriptionData }: ConversationCreatedSubscriptionData
       ) => {
         if (!subscriptionData.data) return prev;
 
