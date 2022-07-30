@@ -16,6 +16,7 @@ import toast from "react-hot-toast";
 import ConversationOperations from "../../../../graphql/operations/conversations";
 import UserOperations from "../../../../graphql/operations/users";
 import {
+  ConversationFE,
   CreateConversationData,
   SearchedUser,
   SearchUsersData,
@@ -27,11 +28,15 @@ import UserList from "./UserList";
 interface CreateConversationModal {
   isOpen: boolean;
   onClose: () => void;
+  conversations: Array<ConversationFE>;
+  userId: string;
 }
 
 const CreateConversationModal: React.FC<CreateConversationModal> = ({
   isOpen,
   onClose,
+  conversations,
+  userId,
 }) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
@@ -53,10 +58,55 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
       ConversationOperations.Mutations.createConversation
     );
 
+  const findExistingConversation = (participantIds: Array<string>) => {
+    let existingConversation: ConversationFE | null = null;
+
+    for (const conversation of conversations) {
+      const addedParticipants = conversation.participants.filter(
+        (p) => p.user.id !== userId
+      );
+
+      if (addedParticipants.length !== participantIds.length) {
+        continue;
+      }
+
+      let allMatchingParticipants: boolean = false;
+      for (const participant of addedParticipants) {
+        const foundParticipant = participantIds.find(
+          (p) => p === participant.user.id
+        );
+
+        if (!foundParticipant) {
+          allMatchingParticipants = false;
+          break;
+        }
+
+        /**
+         * If we hit here,
+         * all match
+         */
+        allMatchingParticipants = true;
+      }
+
+      if (allMatchingParticipants) {
+        existingConversation = conversation;
+      }
+    }
+
+    return existingConversation;
+  };
+
   const onCreateConversation = async () => {
     if (!participants.length) return;
 
     const participantIds = participants.map((p) => p.id);
+
+    const existingConversation = findExistingConversation(participantIds);
+
+    if (existingConversation) {
+      toast("Conversation already exists");
+      return;
+    }
 
     try {
       const { data, errors } = await createConversation({
@@ -64,17 +114,13 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
           participantIds,
         },
       });
-
       if (!data?.createConversation || errors) {
         throw new Error("Error creating conversation");
       }
-
       const {
         createConversation: { conversationId },
       } = data;
-
       router.push({ query: { conversationId } });
-
       /**
        * Close modal on successful creation
        */

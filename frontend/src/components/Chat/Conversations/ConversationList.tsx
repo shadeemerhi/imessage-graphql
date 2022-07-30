@@ -51,7 +51,12 @@ const ConversationList: React.FC<ConversationListProps> = ({
           Find or start a conversation
         </Text>
       </Box>
-      <CreateConversationModal isOpen={modalIsOpen} onClose={onModalClose} />
+      <CreateConversationModal
+        isOpen={modalIsOpen}
+        onClose={onModalClose}
+        conversations={conversations}
+        userId={userId}
+      />
       {sorted_conversations.map((conversation) => (
         <ConversationItem
           key={conversation.id}
