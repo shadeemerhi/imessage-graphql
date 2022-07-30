@@ -81,7 +81,7 @@ interface Conversation {
 
 export interface ConversationFE extends Conversation {
   participants: Array<ConversationParticipant>;
-  latestMessage: MessageFE;
+  latestMessage: MessageFE | null;
 }
 
 export interface ConversationParticipant {
@@ -112,5 +112,7 @@ export interface ConversationCreatedSubscriptionData {
 }
 
 export interface ConversationUpdatedData {
-  conversationUpdated: ConversationFE;
+  conversationUpdated: Omit<ConversationFE, "latestMessage"> & {
+    latestMessage: MessageFE;
+  };
 }
