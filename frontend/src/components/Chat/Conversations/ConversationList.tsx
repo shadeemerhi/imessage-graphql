@@ -1,4 +1,3 @@
-import { gql, useMutation } from "@apollo/client";
 import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -6,16 +5,17 @@ import React from "react";
 import { ConversationFE, ConversationParticipant } from "../../../util/types";
 import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
-import ConversationOperations from "../../../graphql/operations/conversations";
 
 interface ConversationListProps {
   userId: string;
   conversations: Array<ConversationFE>;
+  onViewConversation: (conversationId: string) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   userId,
   conversations,
+  onViewConversation,
 }) => {
   const {
     isOpen: modalIsOpen,
@@ -23,102 +23,18 @@ const ConversationList: React.FC<ConversationListProps> = ({
     onClose: onModalClose,
   } = useDisclosure();
 
-  const [markConversationAsRead] = useMutation<
-    { markConversationAsRead: true },
-    { userId: string; conversationId: string }
-  >(ConversationOperations.Mutations.markConversationAsRead);
-
   const router = useRouter();
   const { conversationId } = router.query;
-
-  const onViewConversation = async (conversationId: string) => {
-    router.push({ query: { conversationId } });
-    try {
-      await markConversationAsRead({
-        variables: {
-          userId,
-          conversationId,
-        },
-        optimisticResponse: {
-          markConversationAsRead: true,
-        },
-        update: (cache) => {
-          /**
-           * Get conversation participants
-           * from cache
-           */
-          const participantsFragment = cache.readFragment<{
-            participants: Array<ConversationParticipant>;
-          }>({
-            id: `Conversation:${conversationId}`,
-            fragment: gql`
-              fragment Participants on Conversation {
-                participants {
-                  user {
-                    id
-                    username
-                  }
-                  hasSeenLatestMessage
-                }
-              }
-            `,
-          });
-
-          if (!participantsFragment) return;
-
-          /**
-           * Create copy to
-           * allow mutation
-           */
-          const participants = [...participantsFragment.participants];
-
-          const userParticipantIdx = participants.findIndex(
-            (p) => p.user.id === userId
-          );
-
-          /**
-           * Should always be found
-           * but just in case
-           */
-          if (userParticipantIdx === -1) return;
-
-          const userParticipant = participants[userParticipantIdx];
-
-          /**
-           * Update user to show latest
-           * message as read
-           */
-          participants[userParticipantIdx] = {
-            ...userParticipant,
-            hasSeenLatestMessage: true,
-          };
-
-          /**
-           * Update cache
-           */
-          cache.writeFragment({
-            id: `Conversation:${conversationId}`,
-            fragment: gql`
-              fragment Participants on Conversation {
-                participants
-              }
-            `,
-            data: {
-              participants,
-            },
-          });
-        },
-      });
-    } catch (error) {
-      console.log("onViewConversation error", error);
-    }
-  };
 
   const getUserParticipantObject = (conversation: ConversationFE) => {
     return conversation.participants.find(
       (p) => p.user.id === userId
     ) as ConversationParticipant;
   };
+
+  const sorted_conversations = [...conversations].sort(
+    (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
+  );
 
   return (
     <>
@@ -136,7 +52,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         </Text>
       </Box>
       <CreateConversationModal isOpen={modalIsOpen} onClose={onModalClose} />
-      {conversations.map((conversation) => (
+      {sorted_conversations.map((conversation) => (
         <ConversationItem
           key={conversation.id}
           conversation={conversation}

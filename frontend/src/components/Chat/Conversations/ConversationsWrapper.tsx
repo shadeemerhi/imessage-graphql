@@ -1,4 +1,4 @@
-import { useQuery, useSubscription } from "@apollo/client";
+import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { Stack } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
@@ -8,6 +8,7 @@ import ConversationOperations from "../../../graphql/operations/conversations";
 import MessageOperations from "../../../graphql/operations/messages";
 import {
   ConversationCreatedSubscriptionData,
+  ConversationParticipant,
   ConversationsData,
   ConversationUpdatedData,
   MessagesData,
@@ -22,11 +23,19 @@ interface ConversationsProps {
 const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
   const router = useRouter();
   const { conversationId } = router.query;
+  const {
+    user: { id: userId },
+  } = session;
 
   const { data, loading, error, subscribeToMore } = useQuery<
     ConversationsData,
     null
   >(ConversationOperations.Queries.conversations);
+
+  const [markConversationAsRead] = useMutation<
+    { markConversationAsRead: true },
+    { userId: string; conversationId: string }
+  >(ConversationOperations.Mutations.markConversationAsRead);
 
   const { data: subData } = useSubscription<ConversationUpdatedData, null>(
     ConversationOperations.Subscriptions.conversationUpdated,
@@ -42,7 +51,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         if (!data) return;
 
         const {
-          conversationUpdated: { id, latestMessage },
+          conversationUpdated: { id: updatedConversationId, latestMessage },
         } = data;
 
         /**
@@ -50,18 +59,21 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
          * new message is received; no need
          * to manually update cache
          */
-        if (id === conversationId) return;
+        if (updatedConversationId === conversationId) {
+          onViewConversation(conversationId);
+          return;
+        }
 
         const existing = client.readQuery<MessagesData>({
           query: MessageOperations.Query.messages,
-          variables: { conversationId: id },
+          variables: { conversationId: updatedConversationId },
         });
 
         if (!existing) return;
 
         client.writeQuery<MessagesData>({
           query: MessageOperations.Query.messages,
-          variables: { conversationId: id },
+          variables: { conversationId: updatedConversationId },
           data: {
             ...existing,
             messages: [latestMessage, ...existing.messages],
@@ -72,6 +84,89 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
   );
 
   console.log("SUB DATA", subData);
+
+  const onViewConversation = async (conversationId: string) => {
+    router.push({ query: { conversationId } });
+    try {
+      await markConversationAsRead({
+        variables: {
+          userId,
+          conversationId,
+        },
+        optimisticResponse: {
+          markConversationAsRead: true,
+        },
+        update: (cache) => {
+          /**
+           * Get conversation participants
+           * from cache
+           */
+          const participantsFragment = cache.readFragment<{
+            participants: Array<ConversationParticipant>;
+          }>({
+            id: `Conversation:${conversationId}`,
+            fragment: gql`
+              fragment Participants on Conversation {
+                participants {
+                  user {
+                    id
+                    username
+                  }
+                  hasSeenLatestMessage
+                }
+              }
+            `,
+          });
+
+          if (!participantsFragment) return;
+
+          /**
+           * Create copy to
+           * allow mutation
+           */
+          const participants = [...participantsFragment.participants];
+
+          const userParticipantIdx = participants.findIndex(
+            (p) => p.user.id === userId
+          );
+
+          /**
+           * Should always be found
+           * but just in case
+           */
+          if (userParticipantIdx === -1) return;
+
+          const userParticipant = participants[userParticipantIdx];
+
+          /**
+           * Update user to show latest
+           * message as read
+           */
+          participants[userParticipantIdx] = {
+            ...userParticipant,
+            hasSeenLatestMessage: true,
+          };
+
+          /**
+           * Update cache
+           */
+          cache.writeFragment({
+            id: `Conversation:${conversationId}`,
+            fragment: gql`
+              fragment Participants on Conversation {
+                participants
+              }
+            `,
+            data: {
+              participants,
+            },
+          });
+        },
+      });
+    } catch (error) {
+      console.log("onViewConversation error", error);
+    }
+  };
 
   const subscribeToNewConversations = () => {
     subscribeToMore({
@@ -118,8 +213,9 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         <SkeletonLoader count={7} height="80px" width="100%" />
       ) : (
         <ConversationList
-          userId={session.user.id}
+          userId={userId}
           conversations={data?.conversations || []}
+          onViewConversation={onViewConversation}
         />
       )}
     </Stack>
