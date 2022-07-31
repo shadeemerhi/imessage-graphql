@@ -7,16 +7,16 @@ import { ConversationFE } from "../../../util/types";
 
 interface ConversationItemProps {
   conversation: ConversationFE;
-  conversationId: string;
-  hasSeenLatestMessage: boolean;
-  onViewConversation: () => void;
+  onClick: () => void;
+  hasSeenLatestMessage?: boolean;
+  selectedConversationId?: string;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
-  conversationId,
+  selectedConversationId,
   hasSeenLatestMessage,
-  onViewConversation,
+  onClick,
 }) => {
   return (
     <Stack
@@ -26,13 +26,15 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       p={4}
       cursor="pointer"
       borderRadius={4}
-      bg={conversation.id === conversationId ? "whiteAlpha.200" : "none"}
+      bg={
+        conversation.id === selectedConversationId ? "whiteAlpha.200" : "none"
+      }
       _hover={{ bg: "whiteAlpha.200" }}
-      onClick={onViewConversation}
+      onClick={onClick}
       position="relative"
     >
       <Flex position="absolute" left="4px">
-        {!hasSeenLatestMessage && (
+        {hasSeenLatestMessage === false && (
           <GoPrimitiveDot fontSize={18} color="#6B46C1" />
         )}
       </Flex>

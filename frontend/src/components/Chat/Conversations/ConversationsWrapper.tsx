@@ -60,7 +60,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
          * to manually update cache
          */
         if (updatedConversationId === conversationId) {
-          onViewConversation(conversationId);
+          onViewConversation(conversationId, false);
           return;
         }
 
@@ -85,8 +85,19 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
 
   console.log("SUB DATA", subData);
 
-  const onViewConversation = async (conversationId: string) => {
+  const onViewConversation = async (
+    conversationId: string,
+    hasSeenLatestMessage: boolean
+  ) => {
     router.push({ query: { conversationId } });
+
+    /**
+     * Only mark as read if conversation is unread
+     */
+    if (hasSeenLatestMessage) return;
+
+    console.log("MARKING AS READ");
+
     try {
       await markConversationAsRead({
         variables: {

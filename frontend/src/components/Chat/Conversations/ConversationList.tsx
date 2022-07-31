@@ -9,7 +9,10 @@ import CreateConversationModal from "./CreateModal/CreateModal";
 interface ConversationListProps {
   userId: string;
   conversations: Array<ConversationFE>;
-  onViewConversation: (conversationId: string) => void;
+  onViewConversation: (
+    conversationId: string,
+    hasSeenLatestMessage: boolean
+  ) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -54,20 +57,25 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <CreateConversationModal
         isOpen={modalIsOpen}
         onClose={onModalClose}
-        conversations={conversations}
         userId={userId}
+        conversations={conversations}
+        onViewConversation={onViewConversation}
+        getUserParticipantObject={getUserParticipantObject}
       />
-      {sorted_conversations.map((conversation) => (
-        <ConversationItem
-          key={conversation.id}
-          conversation={conversation}
-          hasSeenLatestMessage={
-            getUserParticipantObject(conversation).hasSeenLatestMessage
-          }
-          conversationId={conversationId as string}
-          onViewConversation={() => onViewConversation(conversation.id)}
-        />
-      ))}
+      {sorted_conversations.map((conversation) => {
+        const { hasSeenLatestMessage } = getUserParticipantObject(conversation);
+        return (
+          <ConversationItem
+            key={conversation.id}
+            conversation={conversation}
+            hasSeenLatestMessage={hasSeenLatestMessage}
+            selectedConversationId={conversationId as string}
+            onClick={() =>
+              onViewConversation(conversation.id, hasSeenLatestMessage)
+            }
+          />
+        );
+      })}
       <Box position="absolute" bottom={0} left={0} width="100%" p={8}>
         <Button width="100%" onClick={() => signOut()}>
           Logout

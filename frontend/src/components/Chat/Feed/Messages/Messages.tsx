@@ -26,6 +26,8 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     },
   });
 
+  console.log("MESSAGES", data);
+
   const subscribeToMoreMessages = (conversationId: string) => {
     return subscribeToMore({
       document: MessageOperations.Subscriptions.messageSent,

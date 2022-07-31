@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from "@apollo/client";
 import {
+  Box,
   Button,
   Input,
   Modal,
@@ -17,29 +18,42 @@ import ConversationOperations from "../../../../graphql/operations/conversations
 import UserOperations from "../../../../graphql/operations/users";
 import {
   ConversationFE,
+  ConversationParticipant,
   CreateConversationData,
   SearchedUser,
   SearchUsersData,
   SearchUsersInputs,
 } from "../../../../util/types";
+import ConversationItem from "../ConversationItem";
 import Participants from "./Participants";
 import UserList from "./UserList";
 
 interface CreateConversationModal {
   isOpen: boolean;
   onClose: () => void;
-  conversations: Array<ConversationFE>;
   userId: string;
+  conversations: Array<ConversationFE>;
+  onViewConversation: (
+    conversationId: string,
+    hasSeenLatestMessage: boolean
+  ) => void;
+  getUserParticipantObject: (
+    conversation: ConversationFE
+  ) => ConversationParticipant;
 }
 
 const CreateConversationModal: React.FC<CreateConversationModal> = ({
   isOpen,
   onClose,
-  conversations,
   userId,
+  conversations,
+  onViewConversation,
+  getUserParticipantObject,
 }) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
+  const [existingConversation, setExistingConversation] =
+    useState<ConversationFE | null>(null);
   const router = useRouter();
 
   const [
@@ -101,10 +115,11 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
     const participantIds = participants.map((p) => p.id);
 
-    const existingConversation = findExistingConversation(participantIds);
+    const existing = findExistingConversation(participantIds);
 
-    if (existingConversation) {
+    if (existing) {
       toast("Conversation already exists");
+      setExistingConversation(existing);
       return;
     }
 
@@ -142,6 +157,16 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
   const removeParticipant = (userId: string) => {
     setParticipants((prev) => prev.filter((u) => u.id !== userId));
+  };
+
+  const onConversationClick = () => {
+    if (!existingConversation) return;
+
+    const { hasSeenLatestMessage } =
+      getUserParticipantObject(existingConversation);
+
+    onViewConversation(existingConversation.id, hasSeenLatestMessage);
+    onClose();
   };
 
   if (searchUsersError) {
@@ -186,11 +211,20 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                   participants={participants}
                   removeParticipant={removeParticipant}
                 />
+                <Box mt={4}>
+                  {existingConversation && (
+                    <ConversationItem
+                      conversation={existingConversation}
+                      onClick={() => onConversationClick()}
+                    />
+                  )}
+                </Box>
                 <Button
                   bg="purple.600"
                   _hover={{ bg: "purple.600" }}
                   width="100%"
                   mt={6}
+                  disabled={!!existingConversation}
                   isLoading={createConversationLoading}
                   onClick={onCreateConversation}
                 >
