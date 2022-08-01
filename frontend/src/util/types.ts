@@ -1,8 +1,8 @@
+import { User } from "@prisma/client";
+
 /**
  * Users
  */
-import { User } from "@prisma/client";
-
 export interface CreateUsernameVariables {
   username: string;
 }
@@ -92,7 +92,9 @@ export interface ConversationParticipant {
   hasSeenLatestMessage: boolean;
 }
 
-// Operations
+/**
+ * GraphQL Operations
+ */
 export interface CreateConversationData {
   createConversation: {
     conversationId: string;
@@ -114,5 +116,11 @@ export interface ConversationCreatedSubscriptionData {
 export interface ConversationUpdatedData {
   conversationUpdated: Omit<ConversationFE, "latestMessage"> & {
     latestMessage: MessageFE;
+  };
+}
+
+export interface ConversationDeletedData {
+  conversationDeleted: {
+    id: string;
   };
 }

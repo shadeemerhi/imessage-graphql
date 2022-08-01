@@ -1,4 +1,9 @@
-import { Conversation, Message, PrismaClient } from "@prisma/client";
+import {
+  Conversation,
+  ConversationParticipants,
+  Message,
+  PrismaClient,
+} from "@prisma/client";
 import { PubSub } from "graphql-subscriptions";
 import { Context } from "graphql-ws/lib/server";
 
@@ -66,11 +71,11 @@ export interface SendMessageSubscriptionPayload {
  * Conversations
  */
 export interface ConversationFE extends Conversation {
-  participants: Array<ConversationParticipant>;
+  participants: Array<ConversationParticipantUser>;
   latestMessage: MessageFE | null;
 }
 
-export interface ConversationParticipant {
+export interface ConversationParticipantUser {
   user: {
     id: string;
     username: string;
@@ -78,9 +83,15 @@ export interface ConversationParticipant {
 }
 
 export interface NewConveration extends Conversation {
-  participants: Array<ConversationParticipant>;
+  participants: Array<ConversationParticipantUser>;
 }
 
 export interface CreateConversationSubscriptionPayload {
   conversationCreated: NewConveration;
+}
+
+export interface DeleteConversationSubscriptionPayload {
+  conversationDeleted: Conversation & {
+    participants: Array<ConversationParticipants>;
+  };
 }

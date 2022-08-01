@@ -22,6 +22,10 @@ const typeDefs = gql`
     conversationId: String
   }
 
+  type ConversationDeletedResponse {
+    id: String
+  }
+
   type Mutation {
     createConversation(participantIds: [String]): CreateConversationResponse
   }
@@ -40,6 +44,10 @@ const typeDefs = gql`
 
   type Subscription {
     conversationUpdated: Conversation
+  }
+
+  type Subscription {
+    conversationDeleted: ConversationDeletedResponse
   }
 `;
 

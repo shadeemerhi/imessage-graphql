@@ -8,6 +8,7 @@ import ConversationOperations from "../../../graphql/operations/conversations";
 import MessageOperations from "../../../graphql/operations/messages";
 import {
   ConversationCreatedSubscriptionData,
+  ConversationDeletedData,
   ConversationParticipant,
   ConversationsData,
   ConversationUpdatedData,
@@ -27,6 +28,9 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     user: { id: userId },
   } = session;
 
+  /**
+   * Queries
+   */
   const {
     data: conversationsData,
     loading: conversationsLoading,
@@ -36,11 +40,22 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     ConversationOperations.Queries.conversations
   );
 
+  /**
+   * Mutations
+   */
   const [markConversationAsRead] = useMutation<
     { markConversationAsRead: true },
     { userId: string; conversationId: string }
   >(ConversationOperations.Mutations.markConversationAsRead);
 
+  const [deleteConversation, { loading: loadingDelete }] = useMutation<
+    { deleteConversation: boolean },
+    { conversationId: string }
+  >(ConversationOperations.Mutations.deleteConversation);
+
+  /**
+   * Subscriptions
+   */
   useSubscription<ConversationUpdatedData, null>(
     ConversationOperations.Subscriptions.conversationUpdated,
     {
@@ -76,6 +91,37 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           data: {
             ...existing,
             messages: [latestMessage, ...existing.messages],
+          },
+        });
+      },
+    }
+  );
+
+  useSubscription<ConversationDeletedData, null>(
+    ConversationOperations.Subscriptions.conversationDeleted,
+    {
+      onSubscriptionData: ({ client, subscriptionData }) => {
+        const { data } = subscriptionData;
+
+        if (!data) return;
+
+        const existing = client.readQuery<ConversationsData>({
+          query: ConversationOperations.Queries.conversations,
+        });
+
+        if (!existing) return;
+
+        const { conversations } = existing;
+        const {
+          conversationDeleted: { id: deletedConversationId },
+        } = data;
+
+        client.writeQuery<ConversationsData>({
+          query: ConversationOperations.Queries.conversations,
+          data: {
+            conversations: conversations.filter(
+              (conversation) => conversation.id !== deletedConversationId
+            ),
           },
         });
       },
@@ -174,6 +220,25 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     }
   };
 
+  const onDeleteConversation = async (conversationId: string) => {
+    try {
+      toast.promise(
+        deleteConversation({
+          variables: {
+            conversationId,
+          },
+        }),
+        {
+          loading: "Deleting conversation",
+          success: "Conversation deleted",
+          error: "Failed to delete conversation",
+        }
+      );
+    } catch (error) {
+      console.log("onDeleteConversation error", error);
+    }
+  };
+
   const subscribeToNewConversations = () => {
     subscribeToMore({
       document: ConversationOperations.Subscriptions.conversationCreated,
@@ -222,6 +287,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           userId={userId}
           conversations={conversationsData?.conversations || []}
           onViewConversation={onViewConversation}
+          onDeleteConversation={onDeleteConversation}
         />
       )}
     </Stack>

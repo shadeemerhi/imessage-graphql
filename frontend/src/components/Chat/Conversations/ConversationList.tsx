@@ -13,12 +13,14 @@ interface ConversationListProps {
     conversationId: string,
     hasSeenLatestMessage: boolean
   ) => void;
+  onDeleteConversation: (conversationId: string) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   userId,
   conversations,
   onViewConversation,
+  onDeleteConversation,
 }) => {
   const {
     isOpen: modalIsOpen,
@@ -73,6 +75,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             onClick={() =>
               onViewConversation(conversation.id, hasSeenLatestMessage)
             }
+            onDeleteConversation={onDeleteConversation}
           />
         );
       })}
