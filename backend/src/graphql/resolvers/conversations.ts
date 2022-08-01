@@ -51,7 +51,16 @@ const resolvers = {
                 },
               },
             },
-            latestMessage: true,
+            latestMessage: {
+              include: {
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                  },
+                },
+              },
+            },
           },
         });
 
