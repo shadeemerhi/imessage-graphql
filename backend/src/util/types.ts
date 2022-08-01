@@ -67,7 +67,7 @@ export interface SendMessageSubscriptionPayload {
  */
 export interface ConversationFE extends Conversation {
   participants: Array<ConversationParticipant>;
-  latestMessage: Message | null;
+  latestMessage: MessageFE | null;
 }
 
 export interface ConversationParticipant {

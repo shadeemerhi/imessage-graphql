@@ -30,6 +30,10 @@ const typeDefs = gql`
     markConversationAsRead(userId: String!, conversationId: String!): Boolean
   }
 
+  type Mutation {
+    deleteConversation(conversationId: String!): Boolean
+  }
+
   type Subscription {
     conversationCreated: Conversation
   }

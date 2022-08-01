@@ -45,11 +45,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     ConversationOperations.Subscriptions.conversationUpdated,
     {
       onSubscriptionData: ({ client, subscriptionData }) => {
-        /**
-         * @todo
-         * Take latestMessage from subscriptionData and
-         * write it to message query for conversation
-         */
         const { data } = subscriptionData;
 
         if (!data) return;
@@ -97,8 +92,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
      * Only mark as read if conversation is unread
      */
     if (hasSeenLatestMessage) return;
-
-    console.log("MARKING AS READ");
 
     try {
       await markConversationAsRead({

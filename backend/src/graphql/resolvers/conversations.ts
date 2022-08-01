@@ -160,6 +160,42 @@ const resolvers = {
         throw new ApolloError(error.message);
       }
     },
+    deleteConversation: async function (
+      _: any,
+      args: { conversationId: string },
+      context: GraphQLContext
+    ): Promise<boolean> {
+      const { session, prisma } = context;
+      const { conversationId } = args;
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      try {
+        await prisma.conversation.delete({
+          where: {
+            id: conversationId,
+          },
+        });
+
+        await prisma.conversationParticipants.deleteMany({
+          where: {
+            conversationId,
+          },
+        });
+
+        await prisma.message.deleteMany({
+          where: {
+            conversationId,
+          },
+        });
+        return true;
+      } catch (error: any) {
+        console.log("deleteConversation error", error);
+        throw new ApolloError(error?.message);
+      }
+    },
   },
   Subscription: {
     conversationCreated: {

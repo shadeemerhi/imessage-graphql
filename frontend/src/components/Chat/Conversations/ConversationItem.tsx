@@ -2,8 +2,12 @@ import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
 import moment from "moment";
 import React from "react";
 import { GoPrimitiveDot } from "react-icons/go";
+import { AiOutlineDelete } from "react-icons/ai";
 import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
+import { useMutation } from "@apollo/client";
+import ConversationOperations from "../../../graphql/operations/conversations";
+import toast from "react-hot-toast";
 
 interface ConversationItemProps {
   conversation: ConversationFE;
@@ -18,6 +22,48 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   hasSeenLatestMessage,
   onClick,
 }) => {
+  const [deleteConversation] = useMutation<
+    { deleteConversation: boolean },
+    { conversationId: string }
+  >(ConversationOperations.Mutations.deleteConversation);
+
+  const onDelete = async (conversationId: string) => {
+    try {
+      const { data } = await deleteConversation({
+        variables: {
+          conversationId,
+        },
+        update: (cache) => {
+          cache.updateQuery<{ conversations: Array<ConversationFE> }, null>(
+            {
+              query: ConversationOperations.Queries.conversations,
+            },
+            (data) => ({
+              conversations: data
+                ? data.conversations.filter(
+                    (conversation) => conversation.id !== conversationId
+                  )
+                : [],
+            })
+          );
+        },
+      });
+
+      if (!data) {
+        throw new Error("Error deleting conversation");
+      }
+
+      /**
+       * Update cache
+       */
+
+      console.log("DELETE RESPONSE", data);
+    } catch (error: any) {
+      console.log("deleteConversation error", error);
+      toast.error(error.message);
+    }
+  };
+
   return (
     <Stack
       direction="row"
@@ -65,6 +111,13 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         <Text color="whiteAlpha.700" textAlign="right">
           {moment(conversation.updatedAt).format("LT")}
         </Text>
+        <AiOutlineDelete
+          size={20}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete(conversation.id);
+          }}
+        />
       </Flex>
     </Stack>
   );
