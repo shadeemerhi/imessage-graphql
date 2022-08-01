@@ -27,17 +27,21 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     user: { id: userId },
   } = session;
 
-  const { data, loading, error, subscribeToMore } = useQuery<
-    ConversationsData,
-    null
-  >(ConversationOperations.Queries.conversations);
+  const {
+    data: conversationsData,
+    loading: conversationsLoading,
+    error: conversationsError,
+    subscribeToMore,
+  } = useQuery<ConversationsData, null>(
+    ConversationOperations.Queries.conversations
+  );
 
   const [markConversationAsRead] = useMutation<
     { markConversationAsRead: true },
     { userId: string; conversationId: string }
   >(ConversationOperations.Mutations.markConversationAsRead);
 
-  const { data: subData } = useSubscription<ConversationUpdatedData, null>(
+  useSubscription<ConversationUpdatedData, null>(
     ConversationOperations.Subscriptions.conversationUpdated,
     {
       onSubscriptionData: ({ client, subscriptionData }) => {
@@ -82,8 +86,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
       },
     }
   );
-
-  console.log("SUB DATA", subData);
 
   const onViewConversation = async (
     conversationId: string,
@@ -204,7 +206,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     subscribeToNewConversations();
   }, []);
 
-  if (error) {
+  if (conversationsError) {
     toast.error("There was an error fetching conversations");
     return null;
   }
@@ -220,12 +222,12 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
       px={3}
       position="relative"
     >
-      {loading ? (
+      {conversationsLoading ? (
         <SkeletonLoader count={7} height="80px" width="100%" />
       ) : (
         <ConversationList
           userId={userId}
-          conversations={data?.conversations || []}
+          conversations={conversationsData?.conversations || []}
           onViewConversation={onViewConversation}
         />
       )}
