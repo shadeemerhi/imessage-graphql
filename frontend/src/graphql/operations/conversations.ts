@@ -47,6 +47,11 @@ export default {
         deleteConversation(conversationId: $conversationId)
       }
     `,
+    leaveConversation: gql`
+      mutation leaveConversation($conversationId: String!) {
+        leaveConversation(conversationId: $conversationId)
+      }
+    `,
   },
   Subscriptions: {
     conversationCreated: gql`

@@ -48,10 +48,17 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     { userId: string; conversationId: string }
   >(ConversationOperations.Mutations.markConversationAsRead);
 
-  const [deleteConversation, { loading: loadingDelete }] = useMutation<
+  const [deleteConversation] = useMutation<
     { deleteConversation: boolean },
     { conversationId: string }
-  >(ConversationOperations.Mutations.deleteConversation);
+  >(ConversationOperations.Mutations.deleteConversation, {
+    onCompleted: ({}) => {},
+  });
+
+  const [leaveConversation] = useMutation<
+    { leaveConversation: boolean },
+    { conversationId: string }
+  >(ConversationOperations.Mutations.leaveConversation);
 
   /**
    * Subscriptions
@@ -227,6 +234,9 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           variables: {
             conversationId,
           },
+          update: () => {
+            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+          },
         }),
         {
           loading: "Deleting conversation",
@@ -236,6 +246,43 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
       );
     } catch (error) {
       console.log("onDeleteConversation error", error);
+    }
+  };
+
+  const onLeaveConversation = async (conversationId: string) => {
+    try {
+      await toast.promise(
+        leaveConversation({
+          variables: {
+            conversationId,
+          },
+          update: (cache) => {
+            const existing = cache.readQuery<ConversationsData>({
+              query: ConversationOperations.Queries.conversations,
+            });
+
+            if (!existing) return;
+
+            cache.writeQuery<ConversationsData, null>({
+              query: ConversationOperations.Queries.conversations,
+              data: {
+                conversations: existing.conversations.filter(
+                  (conversation) => conversation.id !== conversationId
+                ),
+              },
+            });
+
+            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+          },
+        }),
+        {
+          loading: "Leaving conversation",
+          success: "Left conversation",
+          error: "Failed to leave conversation",
+        }
+      );
+    } catch (error) {
+      console.log("onLeaveConversation", error);
     }
   };
 
@@ -288,6 +335,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           conversations={conversationsData?.conversations || []}
           onViewConversation={onViewConversation}
           onDeleteConversation={onDeleteConversation}
+          onLeaveConversation={onLeaveConversation}
         />
       )}
     </Stack>

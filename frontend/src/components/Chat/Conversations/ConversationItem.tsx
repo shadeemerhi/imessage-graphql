@@ -11,7 +11,8 @@ interface ConversationItemProps {
   onClick: () => void;
   hasSeenLatestMessage?: boolean;
   selectedConversationId?: string;
-  onDeleteConversation: (conversationId: string) => void;
+  onDeleteConversation?: (conversationId: string) => void;
+  onLeaveConversation?: (conversationId: string) => void;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
@@ -20,6 +21,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   hasSeenLatestMessage,
   onClick,
   onDeleteConversation,
+  onLeaveConversation,
 }) => {
   return (
     <Stack
@@ -68,13 +70,25 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         <Text color="whiteAlpha.700" textAlign="right">
           {moment(conversation.updatedAt).format("LT")}
         </Text>
-        <AiOutlineDelete
-          size={20}
-          onClick={(event) => {
-            event.stopPropagation();
-            onDeleteConversation(conversation.id);
-          }}
-        />
+        {onDeleteConversation && (
+          <AiOutlineDelete
+            size={20}
+            onClick={(event) => {
+              event.stopPropagation();
+              onDeleteConversation(conversation.id);
+            }}
+          />
+        )}
+        {onLeaveConversation && (
+          <Text
+            onClick={(event) => {
+              event.stopPropagation();
+              onLeaveConversation(conversation.id);
+            }}
+          >
+            Leave
+          </Text>
+        )}
       </Flex>
     </Stack>
   );

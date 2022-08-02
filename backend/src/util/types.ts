@@ -90,6 +90,10 @@ export interface CreateConversationSubscriptionPayload {
   conversationCreated: NewConveration;
 }
 
+export interface ConversationUpdatedSubscriptionData {
+  conversationUpdated: ConversationFE;
+}
+
 export interface DeleteConversationSubscriptionPayload {
   conversationDeleted: Conversation & {
     participants: Array<ConversationParticipants>;

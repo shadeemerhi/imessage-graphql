@@ -2,6 +2,7 @@ import { ApolloError } from "apollo-server-core";
 import { withFilter } from "graphql-subscriptions";
 import {
   ConversationFE,
+  ConversationUpdatedSubscriptionData,
   CreateConversationSubscriptionPayload,
   DeleteConversationSubscriptionPayload,
   GraphQLContext,
@@ -208,6 +209,57 @@ const resolvers = {
         throw new ApolloError(error?.message);
       }
     },
+    leaveConversation: async function (
+      _: any,
+      args: { conversationId: string },
+      context: GraphQLContext
+    ) {
+      const { session, prisma, pubsub } = context;
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      const { conversationId } = args;
+      const {
+        user: { id: userId },
+      } = session;
+
+      try {
+        const updatedConversation = await prisma.conversation.update({
+          where: {
+            id: conversationId,
+          },
+          data: {
+            participants: {
+              deleteMany: {
+                userId,
+                conversationId,
+              },
+            },
+          },
+          include: {
+            participants: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        pubsub.publish("CONVERSATION_UPDATED", {
+          conversationUpdated: updatedConversation,
+        });
+      } catch (error: any) {
+        console.log("leaveConversation error", error);
+        throw new ApolloError(error?.message);
+      }
+    },
   },
   Subscription: {
     conversationCreated: {
@@ -242,11 +294,35 @@ const resolvers = {
       ),
     },
     conversationUpdated: {
-      subscribe: (_: any, __: any, context: GraphQLContext) => {
-        const { pubsub } = context;
+      subscribe: withFilter(
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
 
-        return pubsub.asyncIterator(["CONVERSATION_UPDATED"]);
-      },
+          return pubsub.asyncIterator(["CONVERSATION_UPDATED"]);
+        },
+        (
+          payload: ConversationUpdatedSubscriptionData,
+          _,
+          context: GraphQLContext
+        ) => {
+          const { session } = context;
+
+          if (!session?.user) {
+            throw new ApolloError("Not authorized");
+          }
+
+          const { id: userId } = session.user;
+          const {
+            conversationUpdated: { participants },
+          } = payload;
+
+          const userIsParticipant = !!participants.find(
+            (p) => p.user.id === userId
+          );
+
+          return userIsParticipant;
+        }
+      ),
     },
     conversationDeleted: {
       subscribe: withFilter(

@@ -14,6 +14,7 @@ interface ConversationListProps {
     hasSeenLatestMessage: boolean
   ) => void;
   onDeleteConversation: (conversationId: string) => void;
+  onLeaveConversation: (conversationId: string) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
@@ -21,6 +22,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   onViewConversation,
   onDeleteConversation,
+  onLeaveConversation,
 }) => {
   const {
     isOpen: modalIsOpen,
@@ -76,6 +78,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               onViewConversation(conversation.id, hasSeenLatestMessage)
             }
             onDeleteConversation={onDeleteConversation}
+            onLeaveConversation={onLeaveConversation}
           />
         );
       })}

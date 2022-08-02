@@ -38,6 +38,10 @@ const typeDefs = gql`
     deleteConversation(conversationId: String!): Boolean
   }
 
+  type Mutation {
+    leaveConversation(conversationId: String!): Boolean
+  }
+
   type Subscription {
     conversationCreated: Conversation
   }
