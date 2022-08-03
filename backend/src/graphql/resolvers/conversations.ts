@@ -92,7 +92,7 @@ const resolvers = {
         throw new ApolloError("Not authorized");
       }
 
-      const { id } = session.user;
+      const { id: userId } = session.user;
 
       try {
         /**
@@ -102,9 +102,9 @@ const resolvers = {
           data: {
             participants: {
               createMany: {
-                data: [id, ...participantIds].map((id) => ({
+                data: [userId, ...participantIds].map((id) => ({
                   userId: id,
-                  hasSeenLatestMessage: false,
+                  hasSeenLatestMessage: id === userId,
                 })),
               },
             },
