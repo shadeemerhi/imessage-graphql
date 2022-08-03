@@ -11,6 +11,8 @@ import {
 import moment from "moment";
 import React, { useState } from "react";
 import { GoPrimitiveDot } from "react-icons/go";
+import { MdDeleteOutline } from "react-icons/md";
+import { BiLogOut } from "react-icons/bi";
 import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
 
@@ -60,21 +62,33 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         position="relative"
       >
         {onLeaveConversation && onDeleteConversation && (
-          <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)} isLazy>
-            <MenuList>
+          <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
+            <MenuList bg="#2d2d2d">
               {conversation.participants.length > 2 ? (
-                <MenuItem onClick={() => onLeaveConversation(conversation.id)}>
+                <MenuItem
+                  icon={<BiLogOut fontSize={20} />}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onLeaveConversation(conversation.id);
+                  }}
+                >
                   Leave
                 </MenuItem>
               ) : (
-                <MenuItem onClick={() => onDeleteConversation(conversation.id)}>
+                <MenuItem
+                  icon={<MdDeleteOutline fontSize={20} />}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDeleteConversation(conversation.id);
+                  }}
+                >
                   Delete
                 </MenuItem>
               )}
             </MenuList>
           </Menu>
         )}
-        <Flex position="absolute" left="4px">
+        <Flex position="absolute" left="-6px">
           {hasSeenLatestMessage === false && (
             <GoPrimitiveDot fontSize={18} color="#6B46C1" />
           )}
