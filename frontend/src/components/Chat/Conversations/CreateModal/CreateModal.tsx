@@ -136,9 +136,13 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
         createConversation: { conversationId },
       } = data;
       router.push({ query: { conversationId } });
+
       /**
-       * Close modal on successful creation
+       * Clear state and close modal
+       * on successful creation
        */
+      setParticipants([]);
+      setUsername("");
       onClose();
     } catch (error: any) {
       console.log("createConversations error", error);
