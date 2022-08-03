@@ -71,6 +71,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         return (
           <ConversationItem
             key={conversation.id}
+            userId={userId}
             conversation={conversation}
             hasSeenLatestMessage={hasSeenLatestMessage}
             selectedConversationId={conversationId as string}

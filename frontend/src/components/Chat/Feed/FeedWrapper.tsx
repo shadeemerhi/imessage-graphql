@@ -31,7 +31,10 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
       {conversationId && typeof conversationId === "string" ? (
         <>
           <Flex direction="column" justify="space-between" height="88%">
-            <MessagesHeader conversationId={conversationId} />
+            <MessagesHeader
+              userId={session.user.id}
+              conversationId={conversationId}
+            />
             <Messages
               userId={session.user.id}
               conversationId={conversationId}

@@ -17,6 +17,7 @@ import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
 
 interface ConversationItemProps {
+  userId: string;
   conversation: ConversationFE;
   onClick: () => void;
   hasSeenLatestMessage?: boolean;
@@ -26,6 +27,7 @@ interface ConversationItemProps {
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
+  userId,
   conversation,
   selectedConversationId,
   hasSeenLatestMessage,
@@ -94,15 +96,15 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           )}
         </Flex>
         <Avatar />
-        <Flex justify="space-between" width="80%">
-          <Flex direction="column" width="70%">
+        <Flex justify="space-between" width="80%" height="100%">
+          <Flex direction="column" width="70%" height="100%">
             <Text
               fontWeight={600}
               whiteSpace="nowrap"
               overflow="hidden"
               textOverflow="ellipsis"
             >
-              {formatUsernames(conversation.participants)}
+              {formatUsernames(conversation.participants, userId)}
             </Text>
             {conversation.latestMessage && (
               <Box>

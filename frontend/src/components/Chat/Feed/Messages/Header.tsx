@@ -8,10 +8,14 @@ import { ConversationsData } from "../../../../util/types";
 import SkeletonLoader from "../../../common/SkeletonLoader";
 
 interface MessagesHeaderProps {
+  userId: string;
   conversationId: string;
 }
 
-const MessagesHeader: React.FC<MessagesHeaderProps> = ({ conversationId }) => {
+const MessagesHeader: React.FC<MessagesHeaderProps> = ({
+  userId,
+  conversationId,
+}) => {
   const { data, loading } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
@@ -43,9 +47,12 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({ conversationId }) => {
       {loading && <SkeletonLoader count={1} height="30px" width="320px" />}
       {!conversation && !loading && <Text>Conversation Not Found</Text>}
       {conversation && (
-        <Text fontWeight={600}>
-          {formatUsernames(conversation.participants)}
-        </Text>
+        <Stack direction="row">
+          <Text color="whiteAlpha.600">To: </Text>
+          <Text fontWeight={600}>
+            {formatUsernames(conversation.participants, userId)}
+          </Text>
+        </Stack>
       )}
     </Stack>
   );
