@@ -10,13 +10,25 @@ const resolvers = {
       args: { username: string },
       context: GraphQLContext
     ): Promise<Array<User>> {
-      const { username } = args;
-      const { prisma } = context;
+      const { username: searchedUsername } = args;
+      const { prisma, session } = context;
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      const {
+        user: { username: myUsername },
+      } = session;
 
       try {
         const users = await prisma.user.findMany({
           where: {
-            username,
+            username: {
+              contains: searchedUsername,
+              not: myUsername,
+              mode: "insensitive",
+            },
           },
         });
 
