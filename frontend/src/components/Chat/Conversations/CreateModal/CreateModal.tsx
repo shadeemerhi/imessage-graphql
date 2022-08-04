@@ -76,6 +76,29 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
       ConversationOperations.Mutations.createConversation
     );
 
+  const onSubmit = () => {
+    if (!participants.length) return;
+
+    const participantIds = participants.map((p) => p.id);
+
+    const existing = findExistingConversation(participantIds);
+
+    if (existing) {
+      toast("Conversation already exists");
+      setExistingConversation(existing);
+      return;
+    }
+
+    /**
+     * Determine which function to call
+     */
+    editingConversation ? onUpdateConversation() : onCreateConversation();
+  };
+
+  /**
+   * Verifies that a conversation with selected
+   * participants does not already exist
+   */
   const findExistingConversation = (participantIds: Array<string>) => {
     let existingConversation: ConversationFE | null = null;
 
@@ -115,17 +138,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
   };
 
   const onCreateConversation = async () => {
-    if (!participants.length) return;
-
     const participantIds = participants.map((p) => p.id);
-
-    const existing = findExistingConversation(participantIds);
-
-    if (existing) {
-      toast("Conversation already exists");
-      setExistingConversation(existing);
-      return;
-    }
 
     try {
       const { data, errors } = await createConversation({
@@ -152,6 +165,10 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
       console.log("createConversations error", error);
       toast.error(error?.message);
     }
+  };
+
+  const onUpdateConversation = async () => {
+    console.log("UPDATING CONVERSATION", editingConversation?.id);
   };
 
   const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
@@ -191,8 +208,24 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
       );
       return;
     }
-    setParticipants([]);
   }, [editingConversation]);
+
+  /**
+   * Reset existing conversation state
+   * when participants added/removed
+   */
+  useEffect(() => {
+    setExistingConversation(null);
+  }, [participants]);
+
+  /**
+   * Clear participant state if closed
+   */
+  useEffect(() => {
+    if (!isOpen) {
+      setParticipants([]);
+    }
+  }, [isOpen]);
 
   if (searchUsersError) {
     toast.error("Error searching for users");
@@ -252,9 +285,11 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                   mt={6}
                   disabled={!!existingConversation}
                   isLoading={createConversationLoading}
-                  onClick={onCreateConversation}
+                  onClick={onSubmit}
                 >
-                  Create Conversation
+                  {editingConversation
+                    ? "Update Conversation"
+                    : "Create Conversation"}
                 </Button>
               </>
             )}
