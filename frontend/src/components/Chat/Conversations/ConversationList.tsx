@@ -1,7 +1,7 @@
 import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useState } from "react";
 import { ConversationFE, ConversationParticipant } from "../../../util/types";
 import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
@@ -24,11 +24,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
   onDeleteConversation,
   onLeaveConversation,
 }) => {
-  const {
-    isOpen: modalIsOpen,
-    onOpen: onModalOpen,
-    onClose: onModalClose,
-  } = useDisclosure();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingConversation, setEditingConversation] =
+    useState<ConversationFE | null>(null);
 
   const router = useRouter();
   const { conversationId } = router.query;
@@ -43,6 +41,18 @@ const ConversationList: React.FC<ConversationListProps> = ({
     (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
   );
 
+  const onEditConversation = (conversation: ConversationFE) => {
+    setEditingConversation(conversation);
+    openModal();
+  };
+
+  const openModal = () => setModalOpen(true);
+
+  const closeModal = () => {
+    setEditingConversation(null);
+    setModalOpen(false);
+  };
+
   return (
     <>
       <Box
@@ -52,15 +62,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
         bg="blackAlpha.300"
         borderRadius={4}
         cursor="pointer"
-        onClick={onModalOpen}
+        onClick={openModal}
       >
         <Text color="whiteAlpha.800" fontWeight={500}>
           Find or start a conversation
         </Text>
       </Box>
       <CreateConversationModal
-        isOpen={modalIsOpen}
-        onClose={onModalClose}
+        isOpen={modalOpen}
+        onClose={closeModal}
         userId={userId}
         conversations={conversations}
         onViewConversation={onViewConversation}
@@ -78,6 +88,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             onClick={() =>
               onViewConversation(conversation.id, hasSeenLatestMessage)
             }
+            onEditConversation={() => onEditConversation(conversation)}
             onDeleteConversation={onDeleteConversation}
             onLeaveConversation={onLeaveConversation}
           />

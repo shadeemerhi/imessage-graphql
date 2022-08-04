@@ -218,6 +218,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                 <Box mt={4}>
                   {existingConversation && (
                     <ConversationItem
+                      userId={userId}
                       conversation={existingConversation}
                       onClick={() => onConversationClick()}
                     />

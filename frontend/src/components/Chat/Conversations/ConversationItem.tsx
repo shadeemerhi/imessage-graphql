@@ -13,6 +13,7 @@ import React, { useState } from "react";
 import { GoPrimitiveDot } from "react-icons/go";
 import { MdDeleteOutline } from "react-icons/md";
 import { BiLogOut } from "react-icons/bi";
+import { AiOutlineEdit } from "react-icons/ai";
 import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
 
@@ -20,6 +21,7 @@ interface ConversationItemProps {
   userId: string;
   conversation: ConversationFE;
   onClick: () => void;
+  onEditConversation?: () => void;
   hasSeenLatestMessage?: boolean;
   selectedConversationId?: string;
   onDeleteConversation?: (conversationId: string) => void;
@@ -32,6 +34,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   selectedConversationId,
   hasSeenLatestMessage,
   onClick,
+  onEditConversation,
   onDeleteConversation,
   onLeaveConversation,
 }) => {
@@ -45,6 +48,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       setMenuOpen(true);
     }
   };
+
+  const showMenu =
+    onEditConversation && onDeleteConversation && onLeaveConversation;
 
   return (
     <>
@@ -63,9 +69,18 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         onContextMenu={handleClick}
         position="relative"
       >
-        {onLeaveConversation && onDeleteConversation && (
+        {showMenu && (
           <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
             <MenuList bg="#2d2d2d">
+              <MenuItem
+                icon={<AiOutlineEdit fontSize={20} />}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEditConversation();
+                }}
+              >
+                Edit
+              </MenuItem>
               {conversation.participants.length > 2 ? (
                 <MenuItem
                   icon={<BiLogOut fontSize={20} />}
