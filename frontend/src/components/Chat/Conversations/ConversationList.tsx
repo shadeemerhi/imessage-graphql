@@ -1,4 +1,5 @@
 import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -7,7 +8,7 @@ import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
 
 interface ConversationListProps {
-  userId: string;
+  session: Session;
   conversations: Array<ConversationFE>;
   onViewConversation: (
     conversationId: string,
@@ -18,7 +19,7 @@ interface ConversationListProps {
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
-  userId,
+  session,
   conversations,
   onViewConversation,
   onDeleteConversation,
@@ -33,7 +34,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
   const getUserParticipantObject = (conversation: ConversationFE) => {
     return conversation.participants.find(
-      (p) => p.user.id === userId
+      (p) => p.user.id === session.user.id
     ) as ConversationParticipant;
   };
 
@@ -71,8 +72,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
       <CreateConversationModal
         isOpen={modalOpen}
         onClose={closeModal}
-        userId={userId}
+        session={session}
         conversations={conversations}
+        editingConversation={editingConversation}
         onViewConversation={onViewConversation}
         getUserParticipantObject={getUserParticipantObject}
       />
@@ -81,7 +83,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         return (
           <ConversationItem
             key={conversation.id}
-            userId={userId}
+            userId={session.user.id}
             conversation={conversation}
             hasSeenLatestMessage={hasSeenLatestMessage}
             selectedConversationId={conversationId as string}

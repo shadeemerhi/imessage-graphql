@@ -22,7 +22,10 @@ export interface SearchUsersData {
   searchUsers: Array<SearchedUser>;
 }
 
-export type SearchedUser = Pick<User, "id" | "username">;
+export interface SearchedUser {
+  id: string;
+  username: string;
+}
 
 /**
  * Messages

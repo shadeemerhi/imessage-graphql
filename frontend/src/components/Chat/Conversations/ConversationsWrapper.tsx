@@ -331,7 +331,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         <SkeletonLoader count={7} height="80px" width="100%" />
       ) : (
         <ConversationList
-          userId={userId}
+          session={session}
           conversations={conversationsData?.conversations || []}
           onViewConversation={onViewConversation}
           onDeleteConversation={onDeleteConversation}

@@ -11,8 +11,9 @@ import {
   ModalOverlay,
   Stack,
 } from "@chakra-ui/react";
+import { Session } from "next-auth";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ConversationOperations from "../../../../graphql/operations/conversations";
 import UserOperations from "../../../../graphql/operations/users";
@@ -31,8 +32,9 @@ import UserList from "./UserList";
 interface CreateConversationModal {
   isOpen: boolean;
   onClose: () => void;
-  userId: string;
+  session: Session;
   conversations: Array<ConversationFE>;
+  editingConversation: ConversationFE | null;
   onViewConversation: (
     conversationId: string,
     hasSeenLatestMessage: boolean
@@ -45,13 +47,15 @@ interface CreateConversationModal {
 const CreateConversationModal: React.FC<CreateConversationModal> = ({
   isOpen,
   onClose,
-  userId,
+  session,
   conversations,
+  editingConversation,
   onViewConversation,
   getUserParticipantObject,
 }) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
+
   const [existingConversation, setExistingConversation] =
     useState<ConversationFE | null>(null);
   const router = useRouter();
@@ -77,7 +81,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
     for (const conversation of conversations) {
       const addedParticipants = conversation.participants.filter(
-        (p) => p.user.id !== userId
+        (p) => p.user.id !== session.user.id
       );
 
       if (addedParticipants.length !== participantIds.length) {
@@ -173,6 +177,23 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
     onClose();
   };
 
+  /**
+   * If a conversation is being edited,
+   * update participant state to be that
+   * conversations' participants
+   */
+  useEffect(() => {
+    if (editingConversation) {
+      setParticipants(
+        editingConversation.participants
+          .filter((p) => p.user.username !== session.user.username)
+          .map((p) => p.user)
+      );
+      return;
+    }
+    setParticipants([]);
+  }, [editingConversation]);
+
   if (searchUsersError) {
     toast.error("Error searching for users");
     return null;
@@ -218,7 +239,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                 <Box mt={4}>
                   {existingConversation && (
                     <ConversationItem
-                      userId={userId}
+                      userId={session.user.id}
                       conversation={existingConversation}
                       onClick={() => onConversationClick()}
                     />
