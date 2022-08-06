@@ -58,7 +58,11 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
   const [existingConversation, setExistingConversation] =
     useState<ConversationFE | null>(null);
+
   const router = useRouter();
+  const {
+    user: { id: userId },
+  } = session;
 
   const [
     searchUsers,
@@ -76,6 +80,12 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
       ConversationOperations.Mutations.createConversation
     );
 
+  const [updateParticipants, { loading: updateParticipantsLoading }] =
+    useMutation<
+      { updateParticipants: boolean },
+      { conversationId: string; participantIds: Array<string> }
+    >(ConversationOperations.Mutations.updateParticipants);
+
   const onSubmit = () => {
     if (!participants.length) return;
 
@@ -92,7 +102,9 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
     /**
      * Determine which function to call
      */
-    editingConversation ? onUpdateConversation() : onCreateConversation();
+    editingConversation
+      ? onUpdateConversation(editingConversation)
+      : onCreateConversation();
   };
 
   /**
@@ -104,7 +116,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
     for (const conversation of conversations) {
       const addedParticipants = conversation.participants.filter(
-        (p) => p.user.id !== session.user.id
+        (p) => p.user.id !== userId
       );
 
       if (addedParticipants.length !== participantIds.length) {
@@ -167,8 +179,22 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
     }
   };
 
-  const onUpdateConversation = async () => {
-    console.log("UPDATING CONVERSATION", editingConversation?.id);
+  const onUpdateConversation = async (conversation: ConversationFE) => {
+    console.log("UPDATING CONVERSATION", conversation.id);
+    const participantIds = participants.map((p) => p.id);
+
+    try {
+      const { data, errors } = await updateParticipants({
+        variables: {
+          conversationId: conversation.id,
+          participantIds,
+        },
+      });
+      console.log("HERE IS RESPONSE", data);
+    } catch (error) {
+      console.log("onUpdateConversation error", error);
+      toast.error("Failed to update participants");
+    }
   };
 
   const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
@@ -272,7 +298,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                 <Box mt={4}>
                   {existingConversation && (
                     <ConversationItem
-                      userId={session.user.id}
+                      userId={userId}
                       conversation={existingConversation}
                       onClick={() => onConversationClick()}
                     />
@@ -284,7 +310,9 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                   width="100%"
                   mt={6}
                   disabled={!!existingConversation}
-                  isLoading={createConversationLoading}
+                  isLoading={
+                    createConversationLoading || updateParticipantsLoading
+                  }
                   onClick={onSubmit}
                 >
                   {editingConversation

@@ -47,6 +47,17 @@ export default {
         deleteConversation(conversationId: $conversationId)
       }
     `,
+    updateParticipants: gql`
+      mutation UpdateParticipants(
+        $conversationId: String!
+        $participantIds: [String]!
+      ) {
+        updateParticipants(
+          conversationId: $conversationId
+          participantIds: $participantIds
+        )
+      }
+    `,
     leaveConversation: gql`
       mutation leaveConversation($conversationId: String!) {
         leaveConversation(conversationId: $conversationId)

@@ -39,6 +39,13 @@ const typeDefs = gql`
   }
 
   type Mutation {
+    updateParticipants(
+      conversationId: String!
+      participantIds: [String]!
+    ): Boolean
+  }
+
+  type Mutation {
     leaveConversation(conversationId: String!): Boolean
   }
 

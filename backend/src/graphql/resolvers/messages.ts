@@ -63,6 +63,11 @@ const resolvers = {
 
       try {
         /**
+         * @todo
+         * Convert below write statements to a transaction
+         */
+
+        /**
          * Create new message entity
          */
         const newMessage = await prisma.message.create({

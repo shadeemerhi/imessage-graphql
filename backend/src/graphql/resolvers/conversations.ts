@@ -176,6 +176,11 @@ const resolvers = {
 
       try {
         /**
+         * @todo
+         * Convert below to a transaction
+         */
+
+        /**
          * Delete conversation and all related entities
          */
         const deletedConversation = await prisma.conversation.delete({
@@ -206,6 +211,110 @@ const resolvers = {
         return true;
       } catch (error: any) {
         console.log("deleteConversation error", error);
+        throw new ApolloError(error?.message);
+      }
+    },
+    updateParticipants: async function (
+      _: any,
+      args: { conversationId: string; participantIds: Array<string> },
+      context: GraphQLContext
+    ) {
+      const { session, prisma, pubsub } = context;
+      const { conversationId, participantIds } = args;
+
+      if (!session?.user) {
+        throw new ApolloError("Not authorized");
+      }
+
+      const {
+        user: { id: userId },
+      } = session;
+
+      try {
+        const participants = await prisma.conversationParticipants.findMany({
+          where: {
+            conversationId,
+          },
+        });
+
+        const existingParticipants = participants.map((p) => p.userId);
+
+        const participantsToDelete = existingParticipants.filter(
+          (id) => ![...participantIds, userId].includes(id)
+        );
+
+        const participantsToCreate = participantIds.filter(
+          (id) => !existingParticipants.includes(id)
+        );
+
+        console.log("EXISTING", existingParticipants);
+        console.log("DELETE", participantsToDelete);
+        console.log("CREATE", participantsToCreate);
+
+        const includeStatement = {
+          participants: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+        };
+
+        const transactionStatements = [
+          prisma.conversation.update({
+            where: {
+              id: conversationId,
+            },
+            data: {
+              participants: {
+                deleteMany: {
+                  userId: {
+                    in: participantsToDelete,
+                  },
+                  conversationId,
+                },
+              },
+            },
+            include: includeStatement,
+          }),
+        ];
+
+        if (participantsToCreate.length) {
+          transactionStatements.push(
+            prisma.conversation.update({
+              where: {
+                id: conversationId,
+              },
+              data: {
+                participants: {
+                  createMany: {
+                    data: participantsToCreate.map((id) => ({
+                      userId: id,
+                      hasSeenLatestMessage: true,
+                    })),
+                  },
+                },
+              },
+              include: includeStatement,
+            })
+          );
+        }
+
+        const [deleteUpdate, addUpdate] = await prisma.$transaction(
+          transactionStatements
+        );
+
+        console.log("HERE ARE RESULTS", deleteUpdate, addUpdate);
+
+        pubsub.publish("CONVERSATION_UPDATED", {
+          conversationUpdated: addUpdate || deleteUpdate,
+        });
+      } catch (error: any) {
+        console.log("updateParticipants error", error);
         throw new ApolloError(error?.message);
       }
     },
