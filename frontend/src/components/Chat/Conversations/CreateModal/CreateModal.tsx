@@ -150,7 +150,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
   };
 
   const onCreateConversation = async () => {
-    const participantIds = participants.map((p) => p.id);
+    const participantIds = [userId, ...participants.map((p) => p.id)];
 
     try {
       const { data, errors } = await createConversation({
@@ -204,6 +204,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
 
   const addParticipant = (user: SearchedUser) => {
     setParticipants((prev) => [...prev, user]);
+    setUsername("");
   };
 
   const removeParticipant = (userId: string) => {
@@ -227,11 +228,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
    */
   useEffect(() => {
     if (editingConversation) {
-      setParticipants(
-        editingConversation.participants
-          .filter((p) => p.user.username !== session.user.username)
-          .map((p) => p.user)
-      );
+      setParticipants(editingConversation.participants.map((p) => p.user));
       return;
     }
   }, [editingConversation]);
@@ -271,6 +268,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
                 <Input
                   placeholder="Enter a username"
                   onChange={(event) => setUsername(event.target.value)}
+                  value={username}
                 />
                 <Button
                   width="100%"
@@ -292,7 +290,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
             {participants.length !== 0 && (
               <>
                 <Participants
-                  participants={participants}
+                  participants={participants.filter((p) => p.id !== userId)}
                   removeParticipant={removeParticipant}
                 />
                 <Box mt={4}>

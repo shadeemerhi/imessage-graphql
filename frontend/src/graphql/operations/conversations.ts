@@ -58,11 +58,6 @@ export default {
         )
       }
     `,
-    leaveConversation: gql`
-      mutation leaveConversation($conversationId: String!) {
-        leaveConversation(conversationId: $conversationId)
-      }
-    `,
   },
   Subscriptions: {
     conversationCreated: gql`

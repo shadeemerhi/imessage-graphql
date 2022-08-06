@@ -102,7 +102,7 @@ const resolvers = {
           data: {
             participants: {
               createMany: {
-                data: [userId, ...participantIds].map((id) => ({
+                data: participantIds.map((id) => ({
                   userId: id,
                   hasSeenLatestMessage: id === userId,
                 })),
@@ -218,7 +218,7 @@ const resolvers = {
       _: any,
       args: { conversationId: string; participantIds: Array<string> },
       context: GraphQLContext
-    ) {
+    ): Promise<boolean> {
       const { session, prisma, pubsub } = context;
       const { conversationId, participantIds } = args;
 
@@ -240,21 +240,27 @@ const resolvers = {
         const existingParticipants = participants.map((p) => p.userId);
 
         const participantsToDelete = existingParticipants.filter(
-          (id) => ![...participantIds, userId].includes(id)
+          (id) => !participantIds.includes(id)
         );
 
         const participantsToCreate = participantIds.filter(
           (id) => !existingParticipants.includes(id)
         );
 
-        console.log("EXISTING", existingParticipants);
-        console.log("DELETE", participantsToDelete);
-        console.log("CREATE", participantsToCreate);
-
         const includeStatement = {
           participants: {
             include: {
               user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          latestMessage: {
+            include: {
+              sender: {
                 select: {
                   id: true,
                   username: true,
@@ -308,64 +314,13 @@ const resolvers = {
           transactionStatements
         );
 
-        console.log("HERE ARE RESULTS", deleteUpdate, addUpdate);
-
         pubsub.publish("CONVERSATION_UPDATED", {
           conversationUpdated: addUpdate || deleteUpdate,
         });
+
+        return true;
       } catch (error: any) {
         console.log("updateParticipants error", error);
-        throw new ApolloError(error?.message);
-      }
-    },
-    leaveConversation: async function (
-      _: any,
-      args: { conversationId: string },
-      context: GraphQLContext
-    ) {
-      const { session, prisma, pubsub } = context;
-
-      if (!session?.user) {
-        throw new ApolloError("Not authorized");
-      }
-
-      const { conversationId } = args;
-      const {
-        user: { id: userId },
-      } = session;
-
-      try {
-        const updatedConversation = await prisma.conversation.update({
-          where: {
-            id: conversationId,
-          },
-          data: {
-            participants: {
-              deleteMany: {
-                userId,
-                conversationId,
-              },
-            },
-          },
-          include: {
-            participants: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        pubsub.publish("CONVERSATION_UPDATED", {
-          conversationUpdated: updatedConversation,
-        });
-      } catch (error: any) {
-        console.log("leaveConversation error", error);
         throw new ApolloError(error?.message);
       }
     },
@@ -429,7 +384,13 @@ const resolvers = {
             (p) => p.user.id === userId
           );
 
-          return userIsParticipant;
+          const userSentLatestMessage =
+            payload.conversationUpdated.latestMessage?.senderId === userId;
+
+          return (
+            (userIsParticipant && !userSentLatestMessage) ||
+            userSentLatestMessage
+          );
         }
       ),
     },

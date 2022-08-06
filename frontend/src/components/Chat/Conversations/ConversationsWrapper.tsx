@@ -48,18 +48,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     { userId: string; conversationId: string }
   >(ConversationOperations.Mutations.markConversationAsRead);
 
-  const [deleteConversation] = useMutation<
-    { deleteConversation: boolean },
-    { conversationId: string }
-  >(ConversationOperations.Mutations.deleteConversation, {
-    onCompleted: ({}) => {},
-  });
-
-  const [leaveConversation] = useMutation<
-    { leaveConversation: boolean },
-    { conversationId: string }
-  >(ConversationOperations.Mutations.leaveConversation);
-
   /**
    * Subscriptions
    */
@@ -68,6 +56,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     {
       onSubscriptionData: ({ client, subscriptionData }) => {
         const { data } = subscriptionData;
+        console.log("CONVERSATION UPDATED", data);
 
         if (!data) return;
 
@@ -75,10 +64,35 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           conversationUpdated: { id: updatedConversationId, latestMessage },
         } = data;
 
+        const conversationsData = client.readQuery<ConversationsData>({
+          query: ConversationOperations.Queries.conversations,
+        });
+
+        /**
+         * If conversation is not found in existing cache,
+         * the user is being added to the conversation
+         */
+        const isBeingAdded = !conversationsData?.conversations.find(
+          (c) => c.id === updatedConversationId
+        );
+
+        if (isBeingAdded) {
+          client.writeQuery<ConversationsData>({
+            query: ConversationOperations.Queries.conversations,
+            data: {
+              conversations: [
+                ...(conversationsData?.conversations || []),
+                data.conversationUpdated,
+              ],
+            },
+          });
+        }
+
         /**
          * Already viewing conversation where
          * new message is received; no need
-         * to manually update cache
+         * to manually update cache due to
+         * message subscription
          */
         if (updatedConversationId === conversationId) {
           onViewConversation(conversationId, false);
@@ -92,6 +106,11 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
 
         if (!existing) return;
 
+        /**
+         * Updates query as re-fetch won't happen if you
+         * view a conversation you've already viewed due
+         * to caching
+         */
         client.writeQuery<MessagesData>({
           query: MessageOperations.Query.messages,
           variables: { conversationId: updatedConversationId },
@@ -147,6 +166,8 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     if (hasSeenLatestMessage) return;
 
     try {
+      console.log("MARKING CONVERSATION AS READ", hasSeenLatestMessage);
+
       await markConversationAsRead({
         variables: {
           userId,
@@ -156,6 +177,8 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           markConversationAsRead: true,
         },
         update: (cache) => {
+          console.log("IS THIS RUNNING");
+
           /**
            * Get conversation participants
            * from cache
@@ -227,65 +250,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     }
   };
 
-  const onDeleteConversation = async (conversationId: string) => {
-    try {
-      toast.promise(
-        deleteConversation({
-          variables: {
-            conversationId,
-          },
-          update: () => {
-            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
-          },
-        }),
-        {
-          loading: "Deleting conversation",
-          success: "Conversation deleted",
-          error: "Failed to delete conversation",
-        }
-      );
-    } catch (error) {
-      console.log("onDeleteConversation error", error);
-    }
-  };
-
-  const onLeaveConversation = async (conversationId: string) => {
-    try {
-      await toast.promise(
-        leaveConversation({
-          variables: {
-            conversationId,
-          },
-          update: (cache) => {
-            const existing = cache.readQuery<ConversationsData>({
-              query: ConversationOperations.Queries.conversations,
-            });
-
-            if (!existing) return;
-
-            cache.writeQuery<ConversationsData, null>({
-              query: ConversationOperations.Queries.conversations,
-              data: {
-                conversations: existing.conversations.filter(
-                  (conversation) => conversation.id !== conversationId
-                ),
-              },
-            });
-
-            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
-          },
-        }),
-        {
-          loading: "Leaving conversation",
-          success: "Left conversation",
-          error: "Failed to leave conversation",
-        }
-      );
-    } catch (error) {
-      console.log("onLeaveConversation", error);
-    }
-  };
-
   const subscribeToNewConversations = () => {
     subscribeToMore({
       document: ConversationOperations.Subscriptions.conversationCreated,
@@ -293,6 +257,8 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         prev,
         { subscriptionData }: ConversationCreatedSubscriptionData
       ) => {
+        console.log("HERE IS DATA", subscriptionData);
+
         if (!subscriptionData.data) return prev;
 
         const newConversation = subscriptionData.data.conversationCreated;
@@ -334,8 +300,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           session={session}
           conversations={conversationsData?.conversations || []}
           onViewConversation={onViewConversation}
-          onDeleteConversation={onDeleteConversation}
-          onLeaveConversation={onLeaveConversation}
         />
       )}
     </Stack>

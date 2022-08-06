@@ -25,7 +25,7 @@ interface ConversationItemProps {
   hasSeenLatestMessage?: boolean;
   selectedConversationId?: string;
   onDeleteConversation?: (conversationId: string) => void;
-  onLeaveConversation?: (conversationId: string) => void;
+  onLeaveConversation?: (conversation: ConversationFE) => void;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
@@ -86,7 +86,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
                   icon={<BiLogOut fontSize={20} />}
                   onClick={(event) => {
                     event.stopPropagation();
-                    onLeaveConversation(conversation.id);
+                    onLeaveConversation(conversation);
                   }}
                 >
                   Leave

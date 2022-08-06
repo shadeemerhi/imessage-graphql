@@ -58,6 +58,8 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     return null;
   }
 
+  console.log("MESSAGE DATA", data?.messages);
+
   return (
     <Flex direction="column" justify="flex-end" overflow="hidden">
       {loading && (

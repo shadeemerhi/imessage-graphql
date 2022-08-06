@@ -1,9 +1,16 @@
-import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
+import { useMutation } from "@apollo/client";
+import { Box, Button, Text } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { ConversationFE, ConversationParticipant } from "../../../util/types";
+import toast from "react-hot-toast";
+import ConversationOperations from "../../../graphql/operations/conversations";
+import {
+  ConversationFE,
+  ConversationParticipant,
+  ConversationsData,
+} from "../../../util/types";
 import ConversationItem from "./ConversationItem";
 import CreateConversationModal from "./CreateModal/CreateModal";
 
@@ -14,33 +21,112 @@ interface ConversationListProps {
     conversationId: string,
     hasSeenLatestMessage: boolean
   ) => void;
-  onDeleteConversation: (conversationId: string) => void;
-  onLeaveConversation: (conversationId: string) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   session,
   conversations,
   onViewConversation,
-  onDeleteConversation,
-  onLeaveConversation,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingConversation, setEditingConversation] =
     useState<ConversationFE | null>(null);
-
   const router = useRouter();
   const { conversationId } = router.query;
+  const {
+    user: { id: userId },
+  } = session;
+
+  /**
+   * Mutations
+   */
+  const [updateParticipants, { loading: updateParticipantsLoading }] =
+    useMutation<
+      { updateParticipants: boolean },
+      { conversationId: string; participantIds: Array<string> }
+    >(ConversationOperations.Mutations.updateParticipants);
+
+  const [deleteConversation] = useMutation<
+    { deleteConversation: boolean },
+    { conversationId: string }
+  >(ConversationOperations.Mutations.deleteConversation);
+
+  const onLeaveConversation = async (conversation: ConversationFE) => {
+    const participantIds = conversation.participants
+      .filter((p) => p.user.id !== userId)
+      .map((p) => p.user.id);
+
+    try {
+      const { data, errors } = await updateParticipants({
+        variables: {
+          conversationId: conversation.id,
+          participantIds,
+        },
+        optimisticResponse: {
+          updateParticipants: true,
+        },
+        update: (cache) => {
+          const existing = cache.readQuery<ConversationsData>({
+            query: ConversationOperations.Queries.conversations,
+          });
+
+          if (!existing) return;
+
+          cache.writeQuery<ConversationsData, null>({
+            query: ConversationOperations.Queries.conversations,
+            data: {
+              conversations: existing.conversations.filter(
+                (c) => c.id !== conversation.id
+              ),
+            },
+          });
+
+          /**
+           * Only redirect if user leaves conversation
+           * they are currently viewing
+           */
+          if (conversationId === conversation.id) {
+            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+          }
+        },
+      });
+
+      if (!data || errors) {
+        throw new Error("Failed to update participants");
+      }
+    } catch (error: any) {
+      console.log("onUpdateConversation error", error);
+      toast.error(error?.message);
+    }
+  };
+
+  const onDeleteConversation = async (conversationId: string) => {
+    try {
+      toast.promise(
+        deleteConversation({
+          variables: {
+            conversationId,
+          },
+          update: () => {
+            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+          },
+        }),
+        {
+          loading: "Deleting conversation",
+          success: "Conversation deleted",
+          error: "Failed to delete conversation",
+        }
+      );
+    } catch (error) {
+      console.log("onDeleteConversation error", error);
+    }
+  };
 
   const getUserParticipantObject = (conversation: ConversationFE) => {
     return conversation.participants.find(
       (p) => p.user.id === session.user.id
     ) as ConversationParticipant;
   };
-
-  const sorted_conversations = [...conversations].sort(
-    (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
-  );
 
   const onEditConversation = (conversation: ConversationFE) => {
     setEditingConversation(conversation);
@@ -53,6 +139,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
     setEditingConversation(null);
     setModalOpen(false);
   };
+
+  const sortedConversations = [...conversations].sort(
+    (a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()
+  );
 
   return (
     <>
@@ -78,7 +168,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
         onViewConversation={onViewConversation}
         getUserParticipantObject={getUserParticipantObject}
       />
-      {sorted_conversations.map((conversation) => {
+      {sortedConversations.map((conversation) => {
         const { hasSeenLatestMessage } = getUserParticipantObject(conversation);
         return (
           <ConversationItem

@@ -45,10 +45,6 @@ const typeDefs = gql`
     ): Boolean
   }
 
-  type Mutation {
-    leaveConversation(conversationId: String!): Boolean
-  }
-
   type Subscription {
     conversationCreated: Conversation
   }

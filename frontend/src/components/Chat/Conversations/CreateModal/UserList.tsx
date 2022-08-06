@@ -1,11 +1,11 @@
 import { Avatar, Button, Flex, Stack, Text } from "@chakra-ui/react";
 import React from "react";
-import { UserSearch } from "../../../../graphql/operations/users";
+import { SearchedUser } from "../../../../util/types";
 
 interface UserListProps {
-  users: Array<UserSearch>;
-  participants: Array<UserSearch>;
-  addParticipant: (user: UserSearch) => void;
+  users: Array<SearchedUser>;
+  participants: Array<SearchedUser>;
+  addParticipant: (user: SearchedUser) => void;
 }
 
 const UserList: React.FC<UserListProps> = ({
@@ -29,10 +29,8 @@ const UserList: React.FC<UserListProps> = ({
               spacing={4}
               py={2}
               px={4}
-              cursor="pointer"
               borderRadius={4}
               _hover={{ bg: "whiteAlpha.200" }}
-              onClick={() => addParticipant(user)}
             >
               <Avatar />
               <Flex justify="space-between" width="100%">
@@ -45,6 +43,7 @@ const UserList: React.FC<UserListProps> = ({
                       (participant) => participant.id === user.id
                     )
                   }
+                  onClick={() => addParticipant(user)}
                 >
                   Select
                 </Button>
