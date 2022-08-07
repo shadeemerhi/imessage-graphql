@@ -12,7 +12,7 @@ import {
   ConversationsData,
 } from "../../../util/types";
 import ConversationItem from "./ConversationItem";
-import CreateConversationModal from "./CreateModal/CreateModal";
+import ConversationModal from "./Modal/Modal";
 
 interface ConversationListProps {
   session: Session;
@@ -159,7 +159,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           Find or start a conversation
         </Text>
       </Box>
-      <CreateConversationModal
+      <ConversationModal
         isOpen={modalOpen}
         onClose={closeModal}
         session={session}

@@ -29,7 +29,7 @@ import ConversationItem from "../ConversationItem";
 import Participants from "./Participants";
 import UserList from "./UserList";
 
-interface CreateConversationModal {
+interface ConversationModal {
   isOpen: boolean;
   onClose: () => void;
   session: Session;
@@ -44,7 +44,7 @@ interface CreateConversationModal {
   ) => ConversationParticipant;
 }
 
-const CreateConversationModal: React.FC<CreateConversationModal> = ({
+const ConversationModal: React.FC<ConversationModal> = ({
   isOpen,
   onClose,
   session,
@@ -159,7 +159,7 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
         },
       });
       if (!data?.createConversation || errors) {
-        throw new Error("Error creating conversation");
+        throw new Error("Failed to create conversation");
       }
       const {
         createConversation: { conversationId },
@@ -180,7 +180,6 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
   };
 
   const onUpdateConversation = async (conversation: ConversationFE) => {
-    console.log("UPDATING CONVERSATION", conversation.id);
     const participantIds = participants.map((p) => p.id);
 
     try {
@@ -190,7 +189,18 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
           participantIds,
         },
       });
-      console.log("HERE IS RESPONSE", data);
+
+      if (!data?.updateParticipants || errors) {
+        throw new Error("Failed to update participants");
+      }
+
+      /**
+       * Clear state and close modal
+       * on successful update
+       */
+      setParticipants([]);
+      setUsername("");
+      onClose();
     } catch (error) {
       console.log("onUpdateConversation error", error);
       toast.error("Failed to update participants");
@@ -325,4 +335,4 @@ const CreateConversationModal: React.FC<CreateConversationModal> = ({
     </>
   );
 };
-export default CreateConversationModal;
+export default ConversationModal;
