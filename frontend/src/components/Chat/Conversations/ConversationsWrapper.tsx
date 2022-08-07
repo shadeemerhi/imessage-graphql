@@ -262,8 +262,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         prev,
         { subscriptionData }: ConversationCreatedSubscriptionData
       ) => {
-        console.log("HERE IS DATA", subscriptionData);
-
         if (!subscriptionData.data) return prev;
 
         const newConversation = subscriptionData.data.conversationCreated;
