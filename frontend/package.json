@@ -20,7 +20,6 @@
     "framer-motion": "^6.4.3",
     "graphql": "^16.5.0",
     "graphql-ws": "^5.9.1",
-    "moment": "^2.29.4",
     "next": "12.1.6",
     "next-auth": "^4.5.0",
     "react": "18.1.0",

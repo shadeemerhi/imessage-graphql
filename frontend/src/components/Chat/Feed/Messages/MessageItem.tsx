@@ -1,5 +1,6 @@
-import { Stack, Avatar, Text, Flex, Box } from "@chakra-ui/react";
-import moment from "moment";
+import { Avatar, Box, Flex, Stack, Text } from "@chakra-ui/react";
+import { formatRelative } from "date-fns";
+import enUS from "date-fns/locale/en-US";
 import React from "react";
 import { MessageFE } from "../../../../util/types";
 
@@ -7,6 +8,13 @@ interface MessageItemProps {
   message: MessageFE;
   sentByMe: boolean;
 }
+
+const formatRelativeLocale = {
+  lastWeek: "eeee 'at' p",
+  yesterday: "'Yesterday at' p",
+  today: "p",
+  other: "MM/dd/yy",
+};
 
 const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
   return (
@@ -39,7 +47,15 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
             <Text>{message.body}</Text>
           </Box>
           <Text fontSize={14} color="whiteAlpha.700">
-            {moment(message.createdAt).format("LT")}
+            {formatRelative(message.createdAt, new Date(), {
+              locale: {
+                ...enUS,
+                formatRelative: (token) =>
+                  formatRelativeLocale[
+                    token as keyof typeof formatRelativeLocale
+                  ],
+              },
+            })}
           </Text>
         </Stack>
       </Stack>

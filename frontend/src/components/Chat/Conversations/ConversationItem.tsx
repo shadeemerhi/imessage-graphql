@@ -8,7 +8,8 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import moment from "moment";
+import { formatRelative } from "date-fns";
+import enUS from "date-fns/locale/en-US";
 import React, { useState } from "react";
 import { GoPrimitiveDot } from "react-icons/go";
 import { MdDeleteOutline } from "react-icons/md";
@@ -16,6 +17,13 @@ import { BiLogOut } from "react-icons/bi";
 import { AiOutlineEdit } from "react-icons/ai";
 import { formatUsernames } from "../../../util/functions";
 import { ConversationFE } from "../../../util/types";
+
+const formatRelativeLocale = {
+  lastWeek: "eeee",
+  yesterday: "'Yesterday",
+  today: "p",
+  other: "MM/dd/yy",
+};
 
 interface ConversationItemProps {
   userId: string;
@@ -135,7 +143,15 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
             )}
           </Flex>
           <Text color="whiteAlpha.700" textAlign="right">
-            {moment(conversation.updatedAt).format("LT")}
+            {formatRelative(conversation.updatedAt, new Date(), {
+              locale: {
+                ...enUS,
+                formatRelative: (token) =>
+                  formatRelativeLocale[
+                    token as keyof typeof formatRelativeLocale
+                  ],
+              },
+            })}
           </Text>
         </Flex>
       </Stack>
