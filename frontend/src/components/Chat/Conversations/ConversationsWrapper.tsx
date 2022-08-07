@@ -56,7 +56,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     {
       onSubscriptionData: ({ client, subscriptionData }) => {
         const { data } = subscriptionData;
-        console.log("CONVERSATION UPDATED", data);
 
         if (!data) return;
 
@@ -107,18 +106,28 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         if (!existing) return;
 
         /**
-         * Updates query as re-fetch won't happen if you
+         * Check if lastest message is already present
+         * in the message query
+         */
+        const hasLatestMessage = existing.messages.find(
+          (m) => m.id === latestMessage.id
+        );
+
+        /**
+         * Update query as re-fetch won't happen if you
          * view a conversation you've already viewed due
          * to caching
          */
-        client.writeQuery<MessagesData>({
-          query: MessageOperations.Query.messages,
-          variables: { conversationId: updatedConversationId },
-          data: {
-            ...existing,
-            messages: [latestMessage, ...existing.messages],
-          },
-        });
+        if (!hasLatestMessage) {
+          client.writeQuery<MessagesData>({
+            query: MessageOperations.Query.messages,
+            variables: { conversationId: updatedConversationId },
+            data: {
+              ...existing,
+              messages: [latestMessage, ...existing.messages],
+            },
+          });
+        }
       },
     }
   );
@@ -166,8 +175,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     if (hasSeenLatestMessage) return;
 
     try {
-      console.log("MARKING CONVERSATION AS READ", hasSeenLatestMessage);
-
       await markConversationAsRead({
         variables: {
           userId,
@@ -177,8 +184,6 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           markConversationAsRead: true,
         },
         update: (cache) => {
-          console.log("IS THIS RUNNING");
-
           /**
            * Get conversation participants
            * from cache
