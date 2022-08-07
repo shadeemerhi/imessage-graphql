@@ -31,21 +31,16 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
         </Flex>
       )}
       <Stack spacing={1} width="100%">
-        {!sentByMe && (
-          <Text fontWeight={500} textAlign={sentByMe ? "right" : "left"}>
-            {message.sender.username}
-          </Text>
-        )}
-        <Stack direction={sentByMe ? "row-reverse" : "row"} align="center">
-          <Box
-            bg={sentByMe ? "purple.600" : "whiteAlpha.300"}
-            px={2}
-            py={1}
-            borderRadius={12}
-            maxWidth="65%"
-          >
-            <Text>{message.body}</Text>
-          </Box>
+        <Stack
+          direction="row"
+          align="center"
+          justify={sentByMe ? "flex-end" : "flex-start"}
+        >
+          {!sentByMe && (
+            <Text fontWeight={500} textAlign={sentByMe ? "right" : "left"}>
+              {message.sender.username}
+            </Text>
+          )}
           <Text fontSize={14} color="whiteAlpha.700">
             {formatRelative(message.createdAt, new Date(), {
               locale: {
@@ -58,8 +53,20 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
             })}
           </Text>
         </Stack>
+        <Flex direction="row" justify={sentByMe ? "flex-end" : "flex-start"}>
+          <Box
+            bg={sentByMe ? "purple.600" : "whiteAlpha.300"}
+            px={2}
+            py={1}
+            borderRadius={12}
+            maxWidth="65%"
+          >
+            <Text>{message.body}</Text>
+          </Box>
+        </Flex>
       </Stack>
     </Stack>
   );
 };
+
 export default MessageItem;

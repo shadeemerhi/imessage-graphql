@@ -15,7 +15,6 @@ export default NextAuth({
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      console.log("INSIDE SIGN IN", user);
       return true;
     },
     async session({ session, token, user }) {
@@ -27,32 +26,4 @@ export default NextAuth({
       });
     },
   },
-  // cookies: {
-  //   sessionToken: {
-  //     name: `__Secure-next-auth.session-token`,
-  //     options: {
-  //       httpOnly: true,
-  //       sameSite: "lax",
-  //       path: "/",
-  //       secure: true,
-  //     },
-  //   },
-  //   callbackUrl: {
-  //     name: `__Secure-next-auth.callback-url`,
-  //     options: {
-  //       sameSite: "lax",
-  //       path: "/",
-  //       secure: true,
-  //     },
-  //   },
-  //   csrfToken: {
-  //     name: `__Host-next-auth.csrf-token`,
-  //     options: {
-  //       httpOnly: true,
-  //       sameSite: "lax",
-  //       path: "/",
-  //       secure: true,
-  //     },
-  //   },
-  // },
 });

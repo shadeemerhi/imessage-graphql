@@ -289,15 +289,14 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     <Stack
       direction="column"
       display={{ base: conversationId ? "none" : "flex", md: "flex" }}
-      width={{ base: "100%", md: "40%" }}
-      maxWidth={{ base: "none", md: "400px" }}
+      width={{ base: "100%", md: "400px" }}
       bg="whiteAlpha.50"
       py={6}
       px={3}
       position="relative"
     >
       {conversationsLoading ? (
-        <SkeletonLoader count={7} height="80px" width="100%" />
+        <SkeletonLoader count={7} height="80px" width="360px" />
       ) : (
         <ConversationList
           session={session}

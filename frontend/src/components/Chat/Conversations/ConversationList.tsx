@@ -145,7 +145,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
   );
 
   return (
-    <>
+    <Box width={{ base: "100%", md: "360px" }}>
       <Box
         py={2}
         px={4}
@@ -191,7 +191,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
           Logout
         </Button>
       </Box>
-    </>
+    </Box>
   );
 };
 export default ConversationList;

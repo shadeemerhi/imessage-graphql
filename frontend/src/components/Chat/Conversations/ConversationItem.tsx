@@ -61,101 +61,99 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     onEditConversation && onDeleteConversation && onLeaveConversation;
 
   return (
-    <>
-      <Stack
-        direction="row"
-        align="center"
-        justify="space-between"
-        p={4}
-        cursor="pointer"
-        borderRadius={4}
-        bg={
-          conversation.id === selectedConversationId ? "whiteAlpha.200" : "none"
-        }
-        _hover={{ bg: "whiteAlpha.200" }}
-        onClick={handleClick}
-        onContextMenu={handleClick}
-        position="relative"
-      >
-        {showMenu && (
-          <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
-            <MenuList bg="#2d2d2d">
+    <Stack
+      direction="row"
+      align="center"
+      justify="space-between"
+      p={4}
+      cursor="pointer"
+      borderRadius={4}
+      bg={
+        conversation.id === selectedConversationId ? "whiteAlpha.200" : "none"
+      }
+      _hover={{ bg: "whiteAlpha.200" }}
+      onClick={handleClick}
+      onContextMenu={handleClick}
+      position="relative"
+    >
+      {showMenu && (
+        <Menu isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
+          <MenuList bg="#2d2d2d">
+            <MenuItem
+              icon={<AiOutlineEdit fontSize={20} />}
+              onClick={(event) => {
+                event.stopPropagation();
+                onEditConversation();
+              }}
+            >
+              Edit
+            </MenuItem>
+            {conversation.participants.length > 2 ? (
               <MenuItem
-                icon={<AiOutlineEdit fontSize={20} />}
+                icon={<BiLogOut fontSize={20} />}
                 onClick={(event) => {
                   event.stopPropagation();
-                  onEditConversation();
+                  onLeaveConversation(conversation);
                 }}
               >
-                Edit
+                Leave
               </MenuItem>
-              {conversation.participants.length > 2 ? (
-                <MenuItem
-                  icon={<BiLogOut fontSize={20} />}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onLeaveConversation(conversation);
-                  }}
-                >
-                  Leave
-                </MenuItem>
-              ) : (
-                <MenuItem
-                  icon={<MdDeleteOutline fontSize={20} />}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onDeleteConversation(conversation.id);
-                  }}
-                >
-                  Delete
-                </MenuItem>
-              )}
-            </MenuList>
-          </Menu>
+            ) : (
+              <MenuItem
+                icon={<MdDeleteOutline fontSize={20} />}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDeleteConversation(conversation.id);
+                }}
+              >
+                Delete
+              </MenuItem>
+            )}
+          </MenuList>
+        </Menu>
+      )}
+      <Flex position="absolute" left="-6px">
+        {hasSeenLatestMessage === false && (
+          <GoPrimitiveDot fontSize={18} color="#6B46C1" />
         )}
-        <Flex position="absolute" left="-6px">
-          {hasSeenLatestMessage === false && (
-            <GoPrimitiveDot fontSize={18} color="#6B46C1" />
+      </Flex>
+      <Avatar />
+      <Flex justify="space-between" width="80%" height="100%">
+        <Flex direction="column" width="70%" height="100%">
+          <Text
+            fontWeight={600}
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+          >
+            {formatUsernames(conversation.participants, userId)}
+          </Text>
+          {conversation.latestMessage && (
+            <Box>
+              <Text
+                color="whiteAlpha.700"
+                whiteSpace="nowrap"
+                overflow="hidden"
+                textOverflow="ellipsis"
+              >
+                {conversation.latestMessage.body}
+              </Text>
+            </Box>
           )}
         </Flex>
-        <Avatar />
-        <Flex justify="space-between" width="80%" height="100%">
-          <Flex direction="column" width="70%" height="100%">
-            <Text
-              fontWeight={600}
-              whiteSpace="nowrap"
-              overflow="hidden"
-              textOverflow="ellipsis"
-            >
-              {formatUsernames(conversation.participants, userId)}
-            </Text>
-            {conversation.latestMessage && (
-              <Box>
-                <Text
-                  color="whiteAlpha.700"
-                  whiteSpace="nowrap"
-                  overflow="hidden"
-                  textOverflow="ellipsis"
-                >
-                  {conversation.latestMessage.body}
-                </Text>
-              </Box>
-            )}
-          </Flex>
-          <Text color="whiteAlpha.700" textAlign="right">
-            {formatRelative(conversation.updatedAt, new Date(), {
-              locale: {
-                ...enUS,
-                formatRelative: (token) =>
-                  formatRelativeLocale[
-                    token as keyof typeof formatRelativeLocale
-                  ],
-              },
-            })}
-          </Text>
-        </Flex>
-      </Stack>
-    </>
+        <Text color="whiteAlpha.700" textAlign="right">
+          {formatRelative(conversation.updatedAt, new Date(), {
+            locale: {
+              ...enUS,
+              formatRelative: (token) =>
+                formatRelativeLocale[
+                  token as keyof typeof formatRelativeLocale
+                ],
+            },
+          })}
+        </Text>
+      </Flex>
+    </Stack>
   );
 };
 export default ConversationItem;
