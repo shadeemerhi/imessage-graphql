@@ -176,11 +176,6 @@ const resolvers = {
 
       try {
         /**
-         * @todo
-         * Convert below to a transaction
-         */
-
-        /**
          * Delete conversation and all related entities
          */
         const [deletedConversation] = await prisma.$transaction([
