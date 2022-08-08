@@ -90,7 +90,7 @@ const resolvers = {
         /**
          * Could cache this in production
          */
-        const participant = await prisma.conversationParticipants.findFirst({
+        const participant = await prisma.conversationParticipant.findFirst({
           where: {
             userId,
             conversationId,

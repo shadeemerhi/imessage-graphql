@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "darwin"]
@@ -46,7 +43,7 @@ model User {
   image          String?
   username       String  @unique
   messages       Message[]
-  conversations  ConversationParticipants[]
+  conversations  ConversationParticipant[]
   accounts       Account[]
   sessions       Session[]
   createdAt      DateTime  @default(now())
@@ -64,7 +61,7 @@ model VerificationToken {
 
 model Conversation {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  participants    ConversationParticipants[]
+  participants    ConversationParticipant[]
   messages        Message[] @relation("conversationMessages")
   latestMessage   Message?   @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
   latestMessageId String?    @unique
@@ -72,7 +69,7 @@ model Conversation {
   updatedAt       DateTime  @updatedAt
 }
 
-model ConversationParticipants {
+model ConversationParticipant {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
   user            User      @relation(fields: [userId], references: [id])
   userId          String

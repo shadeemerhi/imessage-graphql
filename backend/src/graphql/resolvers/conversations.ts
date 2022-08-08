@@ -146,7 +146,7 @@ const resolvers = {
       }
 
       try {
-        await prisma.conversationParticipants.updateMany({
+        await prisma.conversationParticipant.updateMany({
           where: {
             userId,
             conversationId,
@@ -187,7 +187,7 @@ const resolvers = {
               participants: true,
             },
           }),
-          prisma.conversationParticipants.deleteMany({
+          prisma.conversationParticipant.deleteMany({
             where: {
               conversationId,
             },
@@ -226,7 +226,7 @@ const resolvers = {
       } = session;
 
       try {
-        const participants = await prisma.conversationParticipants.findMany({
+        const participants = await prisma.conversationParticipant.findMany({
           where: {
             conversationId,
           },
