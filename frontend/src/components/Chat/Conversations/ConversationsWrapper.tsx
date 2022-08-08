@@ -240,7 +240,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           cache.writeFragment({
             id: `Conversation:${conversationId}`,
             fragment: gql`
-              fragment Participants on Conversation {
+              fragment UpdatedParticipants on Conversation {
                 participants
               }
             `,
