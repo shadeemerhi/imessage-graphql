@@ -1,6 +1,6 @@
 import {
   Conversation,
-  ConversationParticipants,
+  ConversationParticipant,
   Message,
   PrismaClient,
 } from "@prisma/client";
@@ -51,7 +51,7 @@ export interface MessageFE extends Message {
   body: string;
   sender: {
     id: string;
-    username: string;
+    username: string | null;
   };
   createdAt: Date;
 }
@@ -78,7 +78,7 @@ export interface ConversationFE extends Conversation {
 export interface ConversationParticipantUser {
   user: {
     id: string;
-    username: string;
+    username: string | null;
   };
 }
 
@@ -96,6 +96,6 @@ export interface ConversationUpdatedSubscriptionData {
 
 export interface DeleteConversationSubscriptionPayload {
   conversationDeleted: Conversation & {
-    participants: Array<ConversationParticipants>;
+    participants: Array<ConversationParticipant>;
   };
 }
