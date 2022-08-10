@@ -1,4 +1,7 @@
-import { User } from "@prisma/client";
+import {
+  ConversationPopulated,
+  MessagePopulated,
+} from "../../../backend/src/util/types";
 
 /**
  * Users
@@ -30,27 +33,8 @@ export interface SearchedUser {
 /**
  * Messages
  */
-export interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  body: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface MessageFE {
-  id: string;
-  body: string;
-  sender: {
-    id: string;
-    username: string;
-  };
-  createdAt: Date;
-}
-
 export interface MessagesData {
-  messages: Array<MessageFE>;
+  messages: Array<MessagePopulated>;
 }
 
 export interface MessagesVariables {
@@ -67,36 +51,13 @@ export interface SendMessageVariables {
 export interface MessagesSubscriptionData {
   subscriptionData: {
     data: {
-      messageSent: MessageFE;
+      messageSent: MessagePopulated;
     };
   };
 }
 
 /**
  * Conversations
- */
-interface Conversation {
-  id: string;
-  latestMessageId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ConversationFE extends Conversation {
-  participants: Array<ConversationParticipant>;
-  latestMessage: MessageFE | null;
-}
-
-export interface ConversationParticipant {
-  user: {
-    id: string;
-    username: string;
-  };
-  hasSeenLatestMessage: boolean;
-}
-
-/**
- * GraphQL Operations
  */
 export interface CreateConversationData {
   createConversation: {
@@ -105,20 +66,20 @@ export interface CreateConversationData {
 }
 
 export interface ConversationsData {
-  conversations: Array<ConversationFE>;
+  conversations: Array<ConversationPopulated>;
 }
 
 export interface ConversationCreatedSubscriptionData {
   subscriptionData: {
     data: {
-      conversationCreated: ConversationFE;
+      conversationCreated: ConversationPopulated;
     };
   };
 }
 
 export interface ConversationUpdatedData {
-  conversationUpdated: Omit<ConversationFE, "latestMessage"> & {
-    latestMessage: MessageFE;
+  conversationUpdated: Omit<ConversationPopulated, "latestMessage"> & {
+    latestMessage: MessagePopulated;
   };
 }
 

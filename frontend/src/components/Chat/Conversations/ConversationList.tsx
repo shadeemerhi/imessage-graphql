@@ -5,18 +5,18 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import ConversationOperations from "../../../graphql/operations/conversations";
 import {
-  ConversationFE,
-  ConversationParticipant,
-  ConversationsData,
-} from "../../../util/types";
+  ConversationPopulated,
+  ParticipantPopulated,
+} from "../../../../../backend/src/util/types";
+import ConversationOperations from "../../../graphql/operations/conversations";
+import { ConversationsData } from "../../../util/types";
 import ConversationItem from "./ConversationItem";
 import ConversationModal from "./Modal/Modal";
 
 interface ConversationListProps {
   session: Session;
-  conversations: Array<ConversationFE>;
+  conversations: Array<ConversationPopulated>;
   onViewConversation: (
     conversationId: string,
     hasSeenLatestMessage: boolean
@@ -30,7 +30,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingConversation, setEditingConversation] =
-    useState<ConversationFE | null>(null);
+    useState<ConversationPopulated | null>(null);
   const router = useRouter();
   const { conversationId } = router.query;
   const {
@@ -51,7 +51,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
     { conversationId: string }
   >(ConversationOperations.Mutations.deleteConversation);
 
-  const onLeaveConversation = async (conversation: ConversationFE) => {
+  const onLeaveConversation = async (conversation: ConversationPopulated) => {
     const participantIds = conversation.participants
       .filter((p) => p.user.id !== userId)
       .map((p) => p.user.id);
@@ -122,13 +122,13 @@ const ConversationList: React.FC<ConversationListProps> = ({
     }
   };
 
-  const getUserParticipantObject = (conversation: ConversationFE) => {
+  const getUserParticipantObject = (conversation: ConversationPopulated) => {
     return conversation.participants.find(
       (p) => p.user.id === session.user.id
-    ) as ConversationParticipant;
+    ) as ParticipantPopulated;
   };
 
-  const onEditConversation = (conversation: ConversationFE) => {
+  const onEditConversation = (conversation: ConversationPopulated) => {
     setEditingConversation(conversation);
     openModal();
   };

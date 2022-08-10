@@ -1,11 +1,11 @@
-import {
-  Conversation,
-  ConversationParticipant,
-  Message,
-  PrismaClient,
-} from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { PubSub } from "graphql-subscriptions";
 import { Context } from "graphql-ws/lib/server";
+import {
+  conversationPopulated,
+  participantPopulated,
+} from "../graphql/resolvers/conversations";
+import { messagePopulated } from "../graphql/resolvers/messages";
 
 /**
  * Server Configuration
@@ -46,16 +46,6 @@ export interface SearchUsersResponse {
 /**
  * Messages
  */
-export interface MessageFE extends Message {
-  id: string;
-  body: string;
-  sender: {
-    id: string;
-    username: string | null;
-  };
-  createdAt: Date;
-}
-
 export interface SendMessageArguments {
   id: string;
   conversationId: string;
@@ -64,38 +54,32 @@ export interface SendMessageArguments {
 }
 
 export interface SendMessageSubscriptionPayload {
-  messageSent: MessageFE;
+  messageSent: MessagePopulated;
 }
+
+export type MessagePopulated = Prisma.MessageGetPayload<{
+  include: typeof messagePopulated;
+}>;
 
 /**
  * Conversations
  */
-export interface ConversationFE extends Conversation {
-  participants: Array<ConversationParticipantUser>;
-  latestMessage: MessageFE | null;
-}
+export type ConversationPopulated = Prisma.ConversationGetPayload<{
+  include: typeof conversationPopulated;
+}>;
 
-export interface ConversationParticipantUser {
-  user: {
-    id: string;
-    username: string | null;
-  };
-}
+export type ParticipantPopulated = Prisma.ConversationParticipantGetPayload<{
+  include: typeof participantPopulated;
+}>;
 
-export interface NewConveration extends Conversation {
-  participants: Array<ConversationParticipantUser>;
-}
-
-export interface CreateConversationSubscriptionPayload {
-  conversationCreated: NewConveration;
+export interface ConversationCreatedSubscriptionPayload {
+  conversationCreated: ConversationPopulated;
 }
 
 export interface ConversationUpdatedSubscriptionData {
-  conversationUpdated: ConversationFE;
+  conversationUpdated: ConversationPopulated;
 }
 
-export interface DeleteConversationSubscriptionPayload {
-  conversationDeleted: Conversation & {
-    participants: Array<ConversationParticipant>;
-  };
+export interface ConversationDeletedSubscriptionPayload {
+  conversationDeleted: ConversationPopulated;
 }

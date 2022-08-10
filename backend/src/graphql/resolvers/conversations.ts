@@ -1,10 +1,12 @@
+import { Prisma } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { withFilter } from "graphql-subscriptions";
+import { userIsConversationParticipant } from "../../util/functions";
 import {
-  ConversationFE,
+  ConversationPopulated,
   ConversationUpdatedSubscriptionData,
-  CreateConversationSubscriptionPayload,
-  DeleteConversationSubscriptionPayload,
+  ConversationCreatedSubscriptionPayload,
+  ConversationDeletedSubscriptionPayload,
   GraphQLContext,
 } from "../../util/types";
 
@@ -14,7 +16,7 @@ const resolvers = {
       _: any,
       args: Record<string, never>,
       context: GraphQLContext
-    ): Promise<Array<ConversationFE>> {
+    ): Promise<Array<ConversationPopulated>> {
       const { session, prisma } = context;
 
       if (!session?.user) {
@@ -42,28 +44,7 @@ const resolvers = {
           //     },
           //   },
           // },
-          include: {
-            participants: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-            latestMessage: {
-              include: {
-                sender: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-          },
+          include: conversationPopulated,
         });
 
         /**
@@ -109,18 +90,7 @@ const resolvers = {
               },
             },
           },
-          include: {
-            participants: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-          },
+          include: conversationPopulated,
         });
 
         pubsub.publish("CONVERSATION_CREATED", {
@@ -183,9 +153,7 @@ const resolvers = {
             where: {
               id: conversationId,
             },
-            include: {
-              participants: true,
-            },
+            include: conversationPopulated,
           }),
           prisma.conversationParticipant.deleteMany({
             where: {
@@ -242,29 +210,6 @@ const resolvers = {
           (id) => !existingParticipants.includes(id)
         );
 
-        const includeStatement = {
-          participants: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  username: true,
-                },
-              },
-            },
-          },
-          latestMessage: {
-            include: {
-              sender: {
-                select: {
-                  id: true,
-                  username: true,
-                },
-              },
-            },
-          },
-        };
-
         const transactionStatements = [
           prisma.conversation.update({
             where: {
@@ -280,7 +225,7 @@ const resolvers = {
                 },
               },
             },
-            include: includeStatement,
+            include: conversationPopulated,
           }),
         ];
 
@@ -300,7 +245,7 @@ const resolvers = {
                   },
                 },
               },
-              include: includeStatement,
+              include: conversationPopulated,
             })
           );
         }
@@ -329,7 +274,7 @@ const resolvers = {
           return pubsub.asyncIterator(["CONVERSATION_CREATED"]);
         },
         (
-          payload: CreateConversationSubscriptionPayload,
+          payload: ConversationCreatedSubscriptionPayload,
           _,
           context: GraphQLContext
         ) => {
@@ -343,6 +288,8 @@ const resolvers = {
           const {
             conversationCreated: { participants },
           } = payload;
+
+          // return userIsConversationParticipant(participants, id);
 
           const userIsParticipant = !!participants.find(
             (p) => p.user.id === id
@@ -397,7 +344,7 @@ const resolvers = {
           return pubsub.asyncIterator(["CONVERSATION_DELETED"]);
         },
         (
-          payload: DeleteConversationSubscriptionPayload,
+          payload: ConversationDeletedSubscriptionPayload,
           _,
           context: GraphQLContext
         ) => {
@@ -412,13 +359,38 @@ const resolvers = {
             conversationDeleted: { participants },
           } = payload;
 
-          const userIsParticipant = !!participants.find((p) => p.userId === id);
-
-          return userIsParticipant;
+          return userIsConversationParticipant(participants, id);
         }
       ),
     },
   },
 };
+
+export const participantPopulated =
+  Prisma.validator<Prisma.ConversationParticipantInclude>()({
+    user: {
+      select: {
+        id: true,
+        username: true,
+      },
+    },
+  });
+
+export const conversationPopulated =
+  Prisma.validator<Prisma.ConversationInclude>()({
+    participants: {
+      include: participantPopulated,
+    },
+    latestMessage: {
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    },
+  });
 
 export default resolvers;

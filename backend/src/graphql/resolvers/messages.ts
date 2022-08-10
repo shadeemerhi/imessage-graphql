@@ -1,11 +1,13 @@
+import { Prisma } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { withFilter } from "graphql-subscriptions";
 import {
   GraphQLContext,
-  MessageFE,
+  MessagePopulated,
   SendMessageArguments,
   SendMessageSubscriptionPayload,
 } from "../../util/types";
+import { conversationPopulated } from "./conversations";
 
 const resolvers = {
   Query: {
@@ -13,7 +15,7 @@ const resolvers = {
       _: any,
       args: { conversationId: string },
       context: GraphQLContext
-    ): Promise<Array<MessageFE>> {
+    ): Promise<Array<MessagePopulated>> {
       const { session, prisma } = context;
       const { conversationId } = args;
 
@@ -21,19 +23,18 @@ const resolvers = {
         throw new ApolloError("Not authorized");
       }
 
+      const conversation = await prisma.conversation.findUnique({
+        where: {
+          id: conversationId,
+        },
+      });
+
       try {
         const messages = await prisma.message.findMany({
           where: {
             conversationId,
           },
-          include: {
-            sender: {
-              select: {
-                id: true,
-                username: true,
-              },
-            },
-          },
+          include: messagePopulated,
           orderBy: {
             createdAt: "desc",
           },
@@ -77,14 +78,7 @@ const resolvers = {
             conversationId,
             body,
           },
-          include: {
-            sender: {
-              select: {
-                id: true,
-                username: true,
-              },
-            },
-          },
+          include: messagePopulated,
         });
 
         /**
@@ -136,28 +130,7 @@ const resolvers = {
               },
             },
           },
-          include: {
-            participants: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-            latestMessage: {
-              include: {
-                sender: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-          },
+          include: conversationPopulated,
         });
 
         pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
@@ -191,5 +164,14 @@ const resolvers = {
     },
   },
 };
+
+export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({
+  sender: {
+    select: {
+      id: true,
+      username: true,
+    },
+  },
+});
 
 export default resolvers;
