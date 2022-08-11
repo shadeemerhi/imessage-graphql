@@ -12,8 +12,10 @@ import { WebSocketServer } from "ws";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 import { GraphQLContext, Session, SubscriptionContext } from "./util/types";
+import * as dotenv from "dotenv";
 
 const main = async () => {
+  dotenv.config();
   // Create the schema, which will be used separately by ApolloServer and
   // the WebSocket server.
   const schema = makeExecutableSchema({
@@ -27,7 +29,7 @@ const main = async () => {
   const httpServer = createServer(app);
 
   const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: process.env.BASE_URL,
     credentials: true,
   };
 
