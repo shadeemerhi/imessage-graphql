@@ -4,12 +4,12 @@ import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
+import { ParticipantPopulated } from "../../../../../backend/src/util/types";
 import ConversationOperations from "../../../graphql/operations/conversations";
 import MessageOperations from "../../../graphql/operations/messages";
 import {
   ConversationCreatedSubscriptionData,
   ConversationDeletedData,
-  ConversationParticipant,
   ConversationsData,
   ConversationUpdatedData,
   MessagesData,
@@ -189,7 +189,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
            * from cache
            */
           const participantsFragment = cache.readFragment<{
-            participants: Array<ConversationParticipant>;
+            participants: Array<ParticipantPopulated>;
           }>({
             id: `Conversation:${conversationId}`,
             fragment: gql`
