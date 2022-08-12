@@ -284,18 +284,12 @@ const resolvers = {
             throw new ApolloError("Not authorized");
           }
 
-          const { id } = session.user;
+          const { id: userId } = session.user;
           const {
             conversationCreated: { participants },
           } = payload;
 
-          // return userIsConversationParticipant(participants, id);
-
-          const userIsParticipant = !!participants.find(
-            (p) => p.user.id === id
-          );
-
-          return userIsParticipant;
+          return userIsConversationParticipant(participants, userId);
         }
       ),
     },
@@ -322,8 +316,9 @@ const resolvers = {
             conversationUpdated: { participants },
           } = payload;
 
-          const userIsParticipant = !!participants.find(
-            (p) => p.user.id === userId
+          const userIsParticipant = userIsConversationParticipant(
+            participants,
+            userId
           );
 
           const userSentLatestMessage =
@@ -354,12 +349,12 @@ const resolvers = {
             throw new ApolloError("Not authorized");
           }
 
-          const { id } = session.user;
+          const { id: userId } = session.user;
           const {
             conversationDeleted: { participants },
           } = payload;
 
-          return userIsConversationParticipant(participants, id);
+          return userIsConversationParticipant(participants, userId);
         }
       ),
     },

@@ -23,12 +23,6 @@ const resolvers = {
         throw new ApolloError("Not authorized");
       }
 
-      const conversation = await prisma.conversation.findUnique({
-        where: {
-          id: conversationId,
-        },
-      });
-
       try {
         const messages = await prisma.message.findMany({
           where: {
@@ -63,11 +57,6 @@ const resolvers = {
       const { id: messageId, senderId, conversationId, body } = args;
 
       try {
-        /**
-         * @todo
-         * Convert below write statements to a transaction
-         */
-
         /**
          * Create new message entity
          */
