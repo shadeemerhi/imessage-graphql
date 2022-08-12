@@ -37,7 +37,12 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
     error: conversationsError,
     subscribeToMore,
   } = useQuery<ConversationsData, null>(
-    ConversationOperations.Queries.conversations
+    ConversationOperations.Queries.conversations,
+    {
+      onError: ({ message }) => {
+        toast.error(message);
+      },
+    }
   );
 
   /**

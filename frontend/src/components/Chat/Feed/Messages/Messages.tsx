@@ -24,6 +24,9 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     variables: {
       conversationId,
     },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
   });
 
   const subscribeToMoreMessages = (conversationId: string) => {
@@ -54,7 +57,6 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
   }, [conversationId]);
 
   if (error) {
-    toast.error("Error fetching messages");
     return null;
   }
 

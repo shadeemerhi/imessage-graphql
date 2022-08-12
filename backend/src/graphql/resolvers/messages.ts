@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { ApolloError } from "apollo-server-core";
 import { withFilter } from "graphql-subscriptions";
+import { userIsConversationParticipant } from "../../util/functions";
 import {
   GraphQLContext,
   MessagePopulated,
@@ -21,6 +22,33 @@ const resolvers = {
 
       if (!session?.user) {
         throw new ApolloError("Not authorized");
+      }
+
+      const {
+        user: { id: userId },
+      } = session;
+
+      /**
+       * Verify that user is a participant
+       */
+      const conversation = await prisma.conversation.findUnique({
+        where: {
+          id: conversationId,
+        },
+        include: conversationPopulated,
+      });
+
+      if (!conversation) {
+        throw new ApolloError("Conversation Not Found");
+      }
+
+      const allowedToView = userIsConversationParticipant(
+        conversation.participants,
+        userId
+      );
+
+      if (!allowedToView) {
+        throw new Error("Not Authorized");
       }
 
       try {
