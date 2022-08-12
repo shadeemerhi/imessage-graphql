@@ -77,7 +77,11 @@ export interface ConversationCreatedSubscriptionPayload {
 }
 
 export interface ConversationUpdatedSubscriptionData {
-  conversationUpdated: ConversationPopulated;
+  conversationUpdated: {
+    conversation: ConversationPopulated;
+    addedUserIds: Array<string>;
+    removedUserIds: Array<string>;
+  };
 }
 
 export interface ConversationDeletedSubscriptionPayload {

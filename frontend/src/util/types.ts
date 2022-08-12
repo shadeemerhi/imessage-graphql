@@ -78,8 +78,12 @@ export interface ConversationCreatedSubscriptionData {
 }
 
 export interface ConversationUpdatedData {
-  conversationUpdated: Omit<ConversationPopulated, "latestMessage"> & {
-    latestMessage: MessagePopulated;
+  conversationUpdated: {
+    conversation: Omit<ConversationPopulated, "latestMessage"> & {
+      latestMessage: MessagePopulated;
+    };
+    addedUserIds: Array<string> | null;
+    removedUserIds: Array<string> | null;
   };
 }
 

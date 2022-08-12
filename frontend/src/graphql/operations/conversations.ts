@@ -70,7 +70,11 @@ export default {
     conversationUpdated: gql`
       subscription ConversationUpdated {
         conversationUpdated {
-          ${ConversationFields}
+          conversation {
+            ${ConversationFields}
+          }
+          addedUserIds
+          removedUserIds
         }
       }
     `,

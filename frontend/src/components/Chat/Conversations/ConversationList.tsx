@@ -62,33 +62,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
           conversationId: conversation.id,
           participantIds,
         },
-        optimisticResponse: {
-          updateParticipants: true,
-        },
-        update: (cache) => {
-          const existing = cache.readQuery<ConversationsData>({
-            query: ConversationOperations.Queries.conversations,
-          });
-
-          if (!existing) return;
-
-          cache.writeQuery<ConversationsData, null>({
-            query: ConversationOperations.Queries.conversations,
-            data: {
-              conversations: existing.conversations.filter(
-                (c) => c.id !== conversation.id
-              ),
-            },
-          });
-
-          /**
-           * Only redirect if user leaves conversation
-           * they are currently viewing
-           */
-          if (conversationId === conversation.id) {
-            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
-          }
-        },
       });
 
       if (!data || errors) {
@@ -108,7 +81,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
             conversationId,
           },
           update: () => {
-            router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+            router.replace(
+              typeof process.env.NEXT_PUBLIC_BASE_URL === "string"
+                ? process.env.NEXT_PUBLIC_BASE_URL
+                : ""
+            );
           },
         }),
         {

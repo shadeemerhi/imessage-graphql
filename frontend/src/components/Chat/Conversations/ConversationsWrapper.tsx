@@ -65,31 +65,76 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         if (!data) return;
 
         const {
-          conversationUpdated: { id: updatedConversationId, latestMessage },
+          conversationUpdated: {
+            conversation: updatedConversation,
+            addedUserIds,
+            removedUserIds,
+          },
         } = data;
 
-        const conversationsData = client.readQuery<ConversationsData>({
-          query: ConversationOperations.Queries.conversations,
-        });
+        const { id: updatedConversationId, latestMessage } =
+          updatedConversation;
 
         /**
-         * If conversation is not found in existing cache,
-         * the user is being added to the conversation
+         * Check if user is being removed
          */
-        const isBeingAdded = !conversationsData?.conversations.find(
-          (c) => c.id === updatedConversationId
-        );
+        if (removedUserIds && removedUserIds.length) {
+          const isBeingRemoved = removedUserIds.find((id) => id === userId);
 
-        if (isBeingAdded) {
-          client.writeQuery<ConversationsData>({
-            query: ConversationOperations.Queries.conversations,
-            data: {
-              conversations: [
-                ...(conversationsData?.conversations || []),
-                data.conversationUpdated,
-              ],
-            },
-          });
+          if (isBeingRemoved) {
+            const conversationsData = client.readQuery<ConversationsData>({
+              query: ConversationOperations.Queries.conversations,
+            });
+
+            if (!conversationsData) return;
+
+            client.writeQuery<ConversationsData>({
+              query: ConversationOperations.Queries.conversations,
+              data: {
+                conversations: conversationsData.conversations.filter(
+                  (c) => c.id !== updatedConversationId
+                ),
+              },
+            });
+
+            if (conversationId === updatedConversationId) {
+              router.replace(
+                typeof process.env.NEXT_PUBLIC_BASE_URL === "string"
+                  ? process.env.NEXT_PUBLIC_BASE_URL
+                  : ""
+              );
+            }
+
+            /**
+             * Early return - no more updates required
+             */
+            return;
+          }
+        }
+
+        /**
+         * Check if user is being added to conversation
+         */
+        if (addedUserIds && addedUserIds.length) {
+          const isBeingAdded = addedUserIds.find((id) => id === userId);
+
+          if (isBeingAdded) {
+            const conversationsData = client.readQuery<ConversationsData>({
+              query: ConversationOperations.Queries.conversations,
+            });
+
+            if (!conversationsData) return;
+
+            client.writeQuery<ConversationsData>({
+              query: ConversationOperations.Queries.conversations,
+              data: {
+                conversations: [
+                  ...(conversationsData.conversations || []),
+                  updatedConversation,
+                ],
+              },
+            });
+          }
         }
 
         /**

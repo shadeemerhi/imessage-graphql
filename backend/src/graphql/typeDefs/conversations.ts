@@ -14,16 +14,22 @@ const typeDefs = gql`
     hasSeenLatestMessage: Boolean
   }
 
-  type Query {
-    conversations: [Conversation]
-  }
-
   type CreateConversationResponse {
     conversationId: String
   }
 
   type ConversationDeletedResponse {
     id: String
+  }
+
+  type ConversationUpdatedSubscriptionPayload {
+    conversation: Conversation
+    addedUserIds: [String]
+    removedUserIds: [String]
+  }
+
+  type Query {
+    conversations: [Conversation]
   }
 
   type Mutation {
@@ -50,7 +56,7 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    conversationUpdated: Conversation
+    conversationUpdated: ConversationUpdatedSubscriptionPayload
   }
 
   type Subscription {

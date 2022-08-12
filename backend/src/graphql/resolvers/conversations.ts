@@ -255,7 +255,11 @@ const resolvers = {
         );
 
         pubsub.publish("CONVERSATION_UPDATED", {
-          conversationUpdated: addUpdate || deleteUpdate,
+          conversationUpdated: {
+            conversation: addUpdate || deleteUpdate,
+            addedUserIds: participantsToCreate,
+            removedUserIds: participantsToDelete,
+          },
         });
 
         return true;
@@ -313,7 +317,11 @@ const resolvers = {
 
           const { id: userId } = session.user;
           const {
-            conversationUpdated: { participants },
+            conversationUpdated: {
+              conversation: { participants },
+              addedUserIds,
+              removedUserIds,
+            },
           } = payload;
 
           const userIsParticipant = userIsConversationParticipant(
@@ -322,11 +330,17 @@ const resolvers = {
           );
 
           const userSentLatestMessage =
-            payload.conversationUpdated.latestMessage?.senderId === userId;
+            payload.conversationUpdated.conversation.latestMessage?.senderId ===
+            userId;
+
+          const userIsBeingRemoved =
+            removedUserIds &&
+            Boolean(removedUserIds.find((id) => id === userId));
 
           return (
             (userIsParticipant && !userSentLatestMessage) ||
-            userSentLatestMessage
+            userSentLatestMessage ||
+            userIsBeingRemoved
           );
         }
       ),
