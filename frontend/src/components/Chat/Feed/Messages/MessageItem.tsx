@@ -55,7 +55,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
         </Stack>
         <Flex direction="row" justify={sentByMe ? "flex-end" : "flex-start"}>
           <Box
-            bg={sentByMe ? "purple.600" : "whiteAlpha.300"}
+            bg={sentByMe ? "brand.100" : "whiteAlpha.300"}
             px={2}
             py={1}
             borderRadius={12}

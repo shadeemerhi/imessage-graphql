@@ -317,8 +317,8 @@ const ConversationModal: React.FC<ConversationModal> = ({
                   )}
                 </Box>
                 <Button
-                  bg="purple.600"
-                  _hover={{ bg: "purple.600" }}
+                  bg="brand.100"
+                  _hover={{ bg: "brand.100" }}
                   width="100%"
                   mt={6}
                   disabled={!!existingConversation}

@@ -36,8 +36,8 @@ const UserList: React.FC<UserListProps> = ({
               <Flex justify="space-between" width="100%">
                 <Text color="whiteAlpha.700">{user.username}</Text>
                 <Button
-                  bg="purple.600"
-                  _hover={{ bg: "purple.600" }}
+                  bg="brand.100"
+                  _hover={{ bg: "brand.100" }}
                   disabled={
                     !!participants.find(
                       (participant) => participant.id === user.id
