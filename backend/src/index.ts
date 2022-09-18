@@ -2,13 +2,12 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import { PrismaClient } from "@prisma/client";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-express";
-import cors from "cors";
 import express from "express";
 import { PubSub } from "graphql-subscriptions";
 import { useServer } from "graphql-ws/lib/use/ws";
 import { createServer } from "http";
-import { getSession } from "next-auth/react";
 import { WebSocketServer } from "ws";
+import { getSession } from "next-auth/react";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 import { GraphQLContext, Session, SubscriptionContext } from "./util/types";
@@ -32,9 +31,6 @@ const main = async () => {
     origin: process.env.BASE_URL,
     credentials: true,
   };
-
-  // enable cors - NOT WORKING FOR SOME REASON
-  app.use(cors(corsOptions));
 
   // Create our WebSocket server using the HTTP server we just set up.
   const wsServer = new WebSocketServer({
@@ -77,8 +73,9 @@ const main = async () => {
     schema,
     csrfPrevention: true,
     cache: "bounded",
-    context: async ({ req, res }): Promise<GraphQLContext> => {
+    context: async ({ req, res }): Promise<GraphQLContext | null> => {
       const session = await getSession({ req });
+      console.log("HERE IS SESSION", session);
 
       res.header("Access-Control-Allow-Origin", process.env.BASE_URL);
 
@@ -101,7 +98,7 @@ const main = async () => {
     ],
   });
   await server.start();
-  server.applyMiddleware({ app, path: "/graphql" });
+  server.applyMiddleware({ app, path: "/graphql", cors: corsOptions });
 
   const PORT = 4000;
   // Now that our HTTP server is fully set up, we can listen to it.

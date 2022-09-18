@@ -4,10 +4,8 @@ import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import UserOperations, {
-  ICreateUsernameData,
-  ICreateUsernameVariables,
-} from "../../graphql/operations/users";
+import UserOperations from "../../graphql/operations/users";
+import { CreateUsernameData, CreateUsernameVariables } from "../../util/types";
 
 interface AuthProps {
   session: Session | null;
@@ -18,8 +16,8 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
 
   const [createUsername, { data, loading, error }] = useMutation<
-    ICreateUsernameData,
-    ICreateUsernameVariables
+    CreateUsernameData,
+    CreateUsernameVariables
   >(UserOperations.Mutations.createUsername);
 
   const onSubmit = async () => {
@@ -76,7 +74,12 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
           </>
         ) : (
           <>
-            <Text fontSize="3xl">MessengerQL</Text>
+            <Image height={100} src="/images/imessage-logo.png" />
+            <Text fontSize="4xl">MessengerQL</Text>
+            <Text width="70%" align="center">
+              Sign in with Google to send unlimited free messages to your
+              friends
+            </Text>
             <Button
               onClick={() => signIn("google")}
               leftIcon={<Image height="20px" src="/images/googlelogo.png" />}
