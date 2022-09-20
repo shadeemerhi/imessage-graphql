@@ -45,7 +45,7 @@ const resolvers = {
       args: { username: string },
       context: GraphQLContext
     ): Promise<CreateUsernameResponse> {
-      const { session } = context;
+      const { session, prisma } = context;
 
       if (!session?.user) {
         return {
@@ -56,10 +56,7 @@ const resolvers = {
       const { id } = session.user;
       const { username } = args;
 
-      return await verifyAndCreateUsername(
-        { userId: id, username },
-        context.prisma
-      );
+      return await verifyAndCreateUsername({ userId: id, username }, prisma);
     },
   },
 };
