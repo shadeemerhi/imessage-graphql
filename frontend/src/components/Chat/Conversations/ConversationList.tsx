@@ -3,12 +3,13 @@ import { Box, Button, Text } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import {
   ConversationPopulated,
   ParticipantPopulated,
 } from "../../../../../backend/src/util/types";
+import { IModalContext, ModalContext } from "../../../context/ModalContext";
 import ConversationOperations from "../../../graphql/operations/conversations";
 import { ConversationsData } from "../../../util/types";
 import ConversationItem from "./ConversationItem";
@@ -28,14 +29,17 @@ const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   onViewConversation,
 }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingConversation, setEditingConversation] =
-    useState<ConversationPopulated | null>(null);
-  const router = useRouter();
-  const { conversationId } = router.query;
   const {
     user: { id: userId },
   } = session;
+
+  const { modalOpen, openModal, closeModal } =
+    useContext<IModalContext>(ModalContext);
+  const [editingConversation, setEditingConversation] =
+    useState<ConversationPopulated | null>(null);
+
+  const router = useRouter();
+  const { conversationId } = router.query;
 
   /**
    * Mutations
@@ -110,11 +114,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
     openModal();
   };
 
-  const openModal = () => setModalOpen(true);
-
-  const closeModal = () => {
+  const toggleClose = () => {
     setEditingConversation(null);
-    setModalOpen(false);
+    closeModal();
   };
 
   const sortedConversations = [...conversations].sort(
@@ -138,7 +140,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
       </Box>
       <ConversationModal
         isOpen={modalOpen}
-        onClose={closeModal}
+        onClose={toggleClose}
         session={session}
         conversations={conversations}
         editingConversation={editingConversation}

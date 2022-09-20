@@ -5,7 +5,7 @@ import React from "react";
 import MessageInput from "./Input";
 import MessagesHeader from "./Messages/Header";
 import Messages from "./Messages/Messages";
-import NoConversation from "./NoConversation";
+import NoConversationSelected from "./NoConversationSelected";
 
 interface FeedWrapperProps {
   session: Session;
@@ -43,7 +43,7 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
           <MessageInput session={session} conversationId={conversationId} />
         </>
       ) : (
-        <NoConversation />
+        <NoConversationSelected />
       )}
     </Flex>
   );

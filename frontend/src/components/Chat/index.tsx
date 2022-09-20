@@ -3,6 +3,7 @@ import { Session } from "next-auth";
 import React from "react";
 import ConversationsWrapper from "./Conversations/ConversationsWrapper";
 import FeedWrapper from "./Feed/FeedWrapper";
+import ModalProvider from "../../context/ModalContext";
 
 interface ChatProps {
   session: Session;
@@ -11,8 +12,10 @@ interface ChatProps {
 const Chat: React.FC<ChatProps> = ({ session }) => {
   return (
     <Flex height="100vh">
-      <ConversationsWrapper session={session} />
-      <FeedWrapper session={session} />
+      <ModalProvider>
+        <ConversationsWrapper session={session} />
+        <FeedWrapper session={session} />
+      </ModalProvider>
     </Flex>
   );
 };
