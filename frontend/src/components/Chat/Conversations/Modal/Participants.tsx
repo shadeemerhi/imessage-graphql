@@ -1,4 +1,4 @@
-import { Stack, Button, Box, Text } from "@chakra-ui/react";
+import { Stack, Button, Box, Text, Flex } from "@chakra-ui/react";
 import React from "react";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { SearchedUser } from "../../../../util/types";
@@ -13,7 +13,7 @@ const Participants: React.FC<ParticipantsProps> = ({
   removeParticipant,
 }) => {
   return (
-    <Stack direction="row" mt={8}>
+    <Flex direction="row" mt={8} flexWrap="wrap" gap="10px">
       {participants.map((participant) => (
         <Stack
           key={participant.id}
@@ -31,7 +31,7 @@ const Participants: React.FC<ParticipantsProps> = ({
           />
         </Stack>
       ))}
-    </Stack>
+    </Flex>
   );
 };
 export default Participants;
