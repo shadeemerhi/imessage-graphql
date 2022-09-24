@@ -20,12 +20,16 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
     <Flex
       display={{ base: conversationId ? "flex" : "none", md: "flex" }}
       direction="column"
-      flexGrow={1}
       width="100%"
     >
       {conversationId && typeof conversationId === "string" ? (
         <>
-          <Flex direction="column" justify="space-between" height="88%">
+          <Flex
+            direction="column"
+            justify="space-between"
+            overflow="hidden"
+            flexGrow={1}
+          >
             <MessagesHeader
               userId={session.user.id}
               conversationId={conversationId}
