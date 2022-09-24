@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Button, Stack, Text } from "@chakra-ui/react";
-import router from "next/router";
+import { useRouter } from "next/router";
 import React from "react";
 import ConversationOperations from "../../../../graphql/operations/conversations";
 import { formatUsernames } from "../../../../util/functions";
@@ -16,6 +16,7 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({
   userId,
   conversationId,
 }) => {
+  const router = useRouter();
   const { data, loading } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
@@ -23,6 +24,10 @@ const MessagesHeader: React.FC<MessagesHeaderProps> = ({
   const conversation = data?.conversations.find(
     (conversation) => conversation.id === conversationId
   );
+
+  if (data?.conversations && !loading && !conversation) {
+    router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+  }
 
   return (
     <Stack
