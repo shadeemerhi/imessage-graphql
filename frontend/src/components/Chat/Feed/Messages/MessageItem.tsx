@@ -24,6 +24,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
       spacing={4}
       _hover={{ bg: "whiteAlpha.200" }}
       justify={sentByMe ? "flex-end" : "flex-start"}
+      wordBreak="break-word"
     >
       {!sentByMe && (
         <Flex align="flex-end">

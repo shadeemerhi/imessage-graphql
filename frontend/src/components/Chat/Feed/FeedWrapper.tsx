@@ -16,17 +16,12 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
 
   const { conversationId } = router.query;
 
-  /**
-   * @todo
-   * Will need to get conversation from apollo cache
-   * to display participants in header
-   */
-
   return (
     <Flex
       display={{ base: conversationId ? "flex" : "none", md: "flex" }}
       direction="column"
       flexGrow={1}
+      width="100%"
     >
       {conversationId && typeof conversationId === "string" ? (
         <>
