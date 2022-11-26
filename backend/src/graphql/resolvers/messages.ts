@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { ApolloError } from "apollo-server-core";
+// import { GraphQLError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import { withFilter } from "graphql-subscriptions";
 import { userIsConversationParticipant } from "../../util/functions";
 import {
@@ -20,8 +21,10 @@ const resolvers = {
       const { session, prisma } = context;
       const { conversationId } = args;
 
+      console.log("INSIDE THING LOL");
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        console.log("INSIDE IF STATEMENT");
+        throw new GraphQLError("Not authorized");
       }
 
       const {
@@ -39,7 +42,7 @@ const resolvers = {
       });
 
       if (!conversation) {
-        throw new ApolloError("Conversation Not Found");
+        throw new GraphQLError("Conversation Not Found");
       }
 
       const allowedToView = userIsConversationParticipant(
@@ -65,7 +68,7 @@ const resolvers = {
         return messages;
       } catch (error: any) {
         console.log("messages error", error);
-        throw new ApolloError(error?.message);
+        throw new GraphQLError(error?.message);
       }
     },
   },
@@ -78,7 +81,7 @@ const resolvers = {
       const { session, prisma, pubsub } = context;
 
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        throw new GraphQLError("Not authorized");
       }
 
       const { id: userId } = session.user;
@@ -112,7 +115,7 @@ const resolvers = {
          * Should always exist
          */
         if (!participant) {
-          throw new ApolloError("Participant does not exist");
+          throw new GraphQLError("Participant does not exist");
         }
 
         const { id: participantId } = participant;
@@ -160,7 +163,7 @@ const resolvers = {
         return true;
       } catch (error) {
         console.log("sendMessage error", error);
-        throw new ApolloError("Error sending message");
+        throw new GraphQLError("Error sending message");
       }
     },
   },

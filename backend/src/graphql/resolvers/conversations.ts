@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { ApolloError } from "apollo-server-core";
+// import { GraphQLError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import { withFilter } from "graphql-subscriptions";
 import { userIsConversationParticipant } from "../../util/functions";
 import {
@@ -20,7 +21,7 @@ const resolvers = {
       const { session, prisma } = context;
 
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        throw new GraphQLError("Not authorized");
       }
 
       try {
@@ -56,7 +57,7 @@ const resolvers = {
         );
       } catch (error: any) {
         console.log("error", error);
-        throw new ApolloError(error?.message);
+        throw new GraphQLError(error?.message);
       }
     },
   },
@@ -70,7 +71,7 @@ const resolvers = {
       const { participantIds } = args;
 
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        throw new GraphQLError("Not authorized");
       }
 
       const { id: userId } = session.user;
@@ -100,7 +101,7 @@ const resolvers = {
         return { conversationId: conversation.id };
       } catch (error) {
         console.log("createConversation error", error);
-        throw new ApolloError("Error creating conversation");
+        throw new GraphQLError("Error creating conversation");
       }
     },
     markConversationAsRead: async function (
@@ -112,7 +113,7 @@ const resolvers = {
       const { session, prisma } = context;
 
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        throw new GraphQLError("Not authorized");
       }
 
       try {
@@ -129,7 +130,7 @@ const resolvers = {
         return true;
       } catch (error: any) {
         console.log("markConversationAsRead error", error);
-        throw new ApolloError(error.message);
+        throw new GraphQLError(error.message);
       }
     },
     deleteConversation: async function (
@@ -141,7 +142,7 @@ const resolvers = {
       const { conversationId } = args;
 
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        throw new GraphQLError("Not authorized");
       }
 
       try {
@@ -174,7 +175,7 @@ const resolvers = {
         return true;
       } catch (error: any) {
         console.log("deleteConversation error", error);
-        throw new ApolloError(error?.message);
+        throw new GraphQLError(error?.message);
       }
     },
     updateParticipants: async function (
@@ -186,7 +187,7 @@ const resolvers = {
       const { conversationId, participantIds } = args;
 
       if (!session?.user) {
-        throw new ApolloError("Not authorized");
+        throw new GraphQLError("Not authorized");
       }
 
       const {
@@ -265,7 +266,7 @@ const resolvers = {
         return true;
       } catch (error: any) {
         console.log("updateParticipants error", error);
-        throw new ApolloError(error?.message);
+        throw new GraphQLError(error?.message);
       }
     },
   },
@@ -285,7 +286,7 @@ const resolvers = {
           const { session } = context;
 
           if (!session?.user) {
-            throw new ApolloError("Not authorized");
+            throw new GraphQLError("Not authorized");
           }
 
           const { id: userId } = session.user;
@@ -312,7 +313,7 @@ const resolvers = {
           const { session } = context;
 
           if (!session?.user) {
-            throw new ApolloError("Not authorized");
+            throw new GraphQLError("Not authorized");
           }
 
           const { id: userId } = session.user;
@@ -360,7 +361,7 @@ const resolvers = {
           const { session } = context;
 
           if (!session?.user) {
-            throw new ApolloError("Not authorized");
+            throw new GraphQLError("Not authorized");
           }
 
           const { id: userId } = session.user;

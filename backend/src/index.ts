@@ -1,7 +1,10 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { PrismaClient } from "@prisma/client";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import { ApolloServer } from "apollo-server-express";
+// import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+// import { ApolloServer } from "apollo-server-express";
+import { ApolloServer } from "@apollo/server";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { expressMiddleware } from "@apollo/server/express4";
 import express from "express";
 import { PubSub } from "graphql-subscriptions";
 import { useServer } from "graphql-ws/lib/use/ws";
@@ -12,6 +15,8 @@ import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 import { GraphQLContext, Session, SubscriptionContext } from "./util/types";
 import * as dotenv from "dotenv";
+import cors from "cors";
+import { json } from "body-parser";
 
 const main = async () => {
   dotenv.config();
@@ -26,11 +31,6 @@ const main = async () => {
   // server and the ApolloServer to this HTTP server.
   const app = express();
   const httpServer = createServer(app);
-
-  const corsOptions = {
-    origin: process.env.BASE_URL,
-    credentials: true,
-  };
 
   // Create our WebSocket server using the HTTP server we just set up.
   const wsServer = new WebSocketServer({
@@ -72,15 +72,6 @@ const main = async () => {
   const server = new ApolloServer({
     schema,
     csrfPrevention: true,
-    cache: "bounded",
-    context: async ({ req, res }): Promise<GraphQLContext | null> => {
-      const session = await getSession({ req });
-      console.log("HERE IS SESSION", session);
-
-      res.header("Access-Control-Allow-Origin", process.env.BASE_URL);
-
-      return { session: session as Session, prisma, pubsub };
-    },
     plugins: [
       // Proper shutdown for the HTTP server.
       ApolloServerPluginDrainHttpServer({ httpServer }),
@@ -98,15 +89,34 @@ const main = async () => {
     ],
   });
   await server.start();
-  server.applyMiddleware({ app, path: "/graphql", cors: corsOptions });
+
+  const corsOptions = {
+    origin: process.env.BASE_URL,
+    credentials: true,
+  };
+
+  app.use(
+    "/graphql",
+    cors<cors.CorsRequest>(corsOptions),
+    json(),
+    expressMiddleware(server, {
+      context: async ({ req }): Promise<GraphQLContext> => {
+        const session = await getSession({ req });
+
+        return { session: session as Session, prisma, pubsub };
+      },
+    })
+  );
+
+  // server.applyMiddleware({ app, path: "/graphql", cors: corsOptions });
 
   const PORT = 4000;
+
   // Now that our HTTP server is fully set up, we can listen to it.
-  httpServer.listen(PORT, () => {
-    console.log(
-      `Server is now running on http://localhost:${PORT}${server.graphqlPath}`
-    );
-  });
+  await new Promise<void>((resolve) =>
+    httpServer.listen({ port: PORT }, resolve)
+  );
+  console.log(`Server is now running on http://localhost:${PORT}/graphql`);
 };
 
 main().catch((err) => console.log(err));
