@@ -21,9 +21,7 @@ const resolvers = {
       const { session, prisma } = context;
       const { conversationId } = args;
 
-      console.log("INSIDE THING LOL");
       if (!session?.user) {
-        console.log("INSIDE IF STATEMENT");
         throw new GraphQLError("Not authorized");
       }
 
