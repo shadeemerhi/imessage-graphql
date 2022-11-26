@@ -29,10 +29,6 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     },
   });
 
-  if (error) {
-    return null;
-  }
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const subscribeToMoreMessages = (conversationId: string) => {
@@ -66,6 +62,10 @@ const Messages: React.FC<MessagesProps> = ({ userId, conversationId }) => {
     if (!messagesEndRef.current || !data) return;
     messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
   }, [data, messagesEndRef.current]);
+
+  if (error) {
+    return null;
+  }
 
   return (
     <Flex direction="column" justify="flex-end" overflow="hidden">
