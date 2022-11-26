@@ -124,7 +124,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
   );
 
   return (
-    <Box width={{ base: "100%", md: "360px" }}>
+    <Box width="100%" overflow="hidden">
       <Box
         py={2}
         px={4}
@@ -165,7 +165,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
           />
         );
       })}
-      <Box position="absolute" bottom={0} left={0} width="100%" px={8} py={6}>
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        width="100%"
+        bg="#313131"
+        px={8}
+        py={6}
+        zIndex={1}
+      >
         <Button width="100%" onClick={() => signOut()}>
           Logout
         </Button>

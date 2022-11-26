@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
-import { Stack } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
@@ -336,8 +336,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
   }
 
   return (
-    <Stack
-      direction="column"
+    <Box
       display={{ base: conversationId ? "none" : "flex", md: "flex" }}
       width={{ base: "100%", md: "400px" }}
       bg="whiteAlpha.50"
@@ -354,7 +353,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
           onViewConversation={onViewConversation}
         />
       )}
-    </Stack>
+    </Box>
   );
 };
 export default ConversationsWrapper;

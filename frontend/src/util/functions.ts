@@ -1,7 +1,7 @@
-import { ConversationParticipant } from "./types";
+import { ParticipantPopulated } from "../../../backend/src/util/types";
 
 export const formatUsernames = (
-  participants: Array<ConversationParticipant>,
+  participants: Array<ParticipantPopulated>,
   myUserId: string
 ): string => {
   const usernames = participants
