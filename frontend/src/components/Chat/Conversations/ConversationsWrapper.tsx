@@ -59,10 +59,10 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
   useSubscription<ConversationUpdatedData, null>(
     ConversationOperations.Subscriptions.conversationUpdated,
     {
-      onSubscriptionData: ({ client, subscriptionData }) => {
-        const { data } = subscriptionData;
+      onData: ({ client, data }) => {
+        const { data: subscriptionData } = data;
 
-        if (!data) return;
+        if (!subscriptionData) return;
 
         const {
           conversationUpdated: {
@@ -70,7 +70,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
             addedUserIds,
             removedUserIds,
           },
-        } = data;
+        } = subscriptionData;
 
         const { id: updatedConversationId, latestMessage } =
           updatedConversation;
@@ -185,10 +185,10 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
   useSubscription<ConversationDeletedData, null>(
     ConversationOperations.Subscriptions.conversationDeleted,
     {
-      onSubscriptionData: ({ client, subscriptionData }) => {
-        const { data } = subscriptionData;
+      onData: ({ client, data }) => {
+        const { data: subscriptionData } = data;
 
-        if (!data) return;
+        if (!subscriptionData) return;
 
         const existing = client.readQuery<ConversationsData>({
           query: ConversationOperations.Queries.conversations,
@@ -199,7 +199,7 @@ const ConversationsWrapper: React.FC<ConversationsProps> = ({ session }) => {
         const { conversations } = existing;
         const {
           conversationDeleted: { id: deletedConversationId },
-        } = data;
+        } = subscriptionData;
 
         client.writeQuery<ConversationsData>({
           query: ConversationOperations.Queries.conversations,
